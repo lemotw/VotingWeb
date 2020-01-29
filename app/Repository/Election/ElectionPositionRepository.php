@@ -2,6 +2,13 @@
 
 namespace App\Repository\Election;
 
+use Illuminate\Support\Facades\Validator;
+
+use App\Exceptions\FormatNotMatchException;
+use App\Exceptions\RelatedObjectNotFoundException;
+
+use App\Models\Election\Election;
+use App\Models\Election\Position;
 use App\Models\Election\ElectionPosition;
 use App\Contracts\Repository\Election\ElectionPositionRepository as ElectionPositionRepositoryContract;
 
@@ -20,12 +27,12 @@ class ElectionPositionRepository implements ElectionPositionRepositoryContract
     /**
      * Get Election Position.
      * 
-     * @param string $Uid
+     * @param integer $id
      * @return ElectionPosition
      */
-    public function get($Uid)
+    public function get($id)
     {
-        return ElectionPosition::where('UID', $Uid)->first();
+        return ElectionPosition::find($id);
     }
 
     /**
@@ -59,11 +66,11 @@ class ElectionPositionRepository implements ElectionPositionRepositoryContract
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('ElectionPosition create param format not match.');
 
         //Check Position and Election is exist or not.
         if(Election::find($data['Election']) == NULL || Position::find($data['Position']) == NULL)
-            return NULL;
+            throw new RelatedObjectNotFoundException('Election Position object not found!');
 
         $data['UID'] = hash('sha256', strval(time()).$data['Name'].'Position');
 
@@ -73,26 +80,35 @@ class ElectionPositionRepository implements ElectionPositionRepositoryContract
     /**
      * Update Election Position.
      * 
-     * @param ElectionPositon $position
+     * @param array $data
      * @return ElectionPosition
      */
-    public function update(ElectionPosition $position)
+    public function update($data)
     {
         //Check data valid or not.
-        $validator = Validator::make($position->toArray(), [
-            'Name' => 'required|string|max:32',
-            'UID' => 'required|string|max:64',
-            'Election' => 'required|integer',
-            'Position' => 'required|integer'
+        $validator = Validator::make($data, [
+            'Name' => 'string|max:32',
+            'Election' => 'integer',
+            'Position' => 'integer'
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('ElectionPosition update param format not match.');
 
-        if(!$position->update())
-            return NULL;
+        if(!isset($data['UID']) && !isset($data['id']))
+            throw new FormatNotMatchException('ElectionPosition primary key not set.');
 
-        return $position;
+        // Get Entity and update
+        if(isset($data['UID']))
+            $entity = ElectionPosition::where('UID', $data['UID'])->first();
+
+        if(isset($data['id']))
+            $entity = ElectionPosition::find($data['id']);
+
+        if(!$entity->update($data))
+            throw new RuntimeException('ElectionPosition Eloquent update problem!');
+
+        return $entity;
     }
 
     /**

@@ -2,6 +2,12 @@
 
 namespace App\Repository\Election;
 
+use Illuminate\Support\Facades\Validator;
+
+use RuntimeException;
+use App\Exceptions\FormatNotMatchException;
+use App\Exceptions\RelatedObjectNotFoundException;
+
 use App\Models\Election\ElectionPosition;
 use App\Models\Election\CandidateRegister;
 use App\Contracts\Repository\Election\CandidateRegisterRepository as CandidateRegisterRepositoryContract;
@@ -55,13 +61,17 @@ class CandidateRegisterRepository implements CandidateRegisterRepositoryContract
         //Check data valid or not.
         $validator = Validator::make($data, [
             'Name' => 'required|string|max:32',
-            'account' => 'required|string|max:128',
-            'password' => 'required|string|max:256',
-            'ElectionPosition' => 'required|integer'
+            'account' => 'string|max:128',
+            'password' => 'string|max:256',
+            'ElectionPosition' => 'integer'
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('CandidateRegister create param format not match.');
+
+        //Check ElectionPosition is exist or not.
+        if(ElectionPosition::find($data['ElectionPosition']) == NULL)
+            throw new RelatedObjectNotFoundException('Election Position object not found!');
 
         return CandidateRegister::create($data);
     }
@@ -69,13 +79,14 @@ class CandidateRegisterRepository implements CandidateRegisterRepositoryContract
     /**
      * Update Candidate Register.
      * 
-     * @param CandidateRegister $candidate
+     * @param array $data
      * @return CandidateRegister
      */
-    public function update(CandidateRegister $candidate)
+    public function update($data)
     {
         //Check data valid or not.
-        $validator = Validator::make($candidate->toArray(), [
+        $validator = Validator::make($data, [
+            'id' => 'required|integer',
             'Name' => 'required|string|max:32',
             'account' => 'required|string|max:128',
             'password' => 'required|string|max:256',
@@ -83,12 +94,18 @@ class CandidateRegisterRepository implements CandidateRegisterRepositoryContract
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('CandidateRegister update param format not match.');
 
-        if(!$candidate->update())
-            return NULL;
+        //Check ElectionPosition is exist or not.
+        if(ElectionPosition::find($data['ElectionPosition']) == NULL)
+            throw new RelatedObjectNotFoundException('Election Position object not found!');
 
-        return $candidate;
+        // Get Entity and update
+        $entity = CandidateRegister::find($data['id']);
+        if(!$entity->update($data))
+            throw new RuntimeException('CandidateRegister Eloquent update problem!');
+
+        return $entity;
     }
 
     /**

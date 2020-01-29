@@ -16,7 +16,7 @@ class Candidate extends Model
     protected $table = 'Candidate';
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
 
-    protected $fillable = [ 'Name', 'ElectionPosition', 'File' ];
+    protected $fillable = [ 'Candidate', 'Name', 'ElectionPosition', 'File' ];
 
     public function ElectionPositionEntity()
     {

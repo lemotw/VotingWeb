@@ -12,10 +12,9 @@ class Election extends Model
     public $incrementing = true;
     protected $primaryKey = 'id';
     protected $table = 'Election';
-    protected $dates = ['StartTime', 'EndTime', 'RegisterStart', 'RegisterEnd', 'VoteStart', 'VoteEnd', 'created_at', 'updated_at', 'deleted_at' ];
-    protected $fillable = [ 'Name' ];
+    protected $fillable = ['Name', 'StartTime', 'EndTime', 'RegisterStart', 'RegisterEnd', 'VoteStart', 'VoteEnd', 'created_at', 'updated_at', 'deleted_at' ];
 
-    public function ElectionPosition()
+    public function ElectionPositionEntity()
     {
         return $this->hasMany('App\Models\Election\ElectionPosition', 'Election', 'id');
     }

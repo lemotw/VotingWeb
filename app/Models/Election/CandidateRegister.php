@@ -9,11 +9,11 @@ class CandidateRegister extends Model
 {
     use SoftDeletes;
 
+    public $incrementing = true;
     protected $primaryKey = 'id';
     protected $table = 'CandidateRegister';
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
     protected $fillable = [ 'Name', 'account', 'password', 'ElectionPosition' ];
-    protected $incrementing = true;
 
     public function ElectionPosition()
     {

@@ -4,7 +4,7 @@ namespace App\Contracts\Repository\Election;
 
 use App\Models\Election\CandidateRegister;
 
-interface PositionRepository
+interface CandidateRegisterRepository
 {
     /**
      * Get all CandidateRegister.

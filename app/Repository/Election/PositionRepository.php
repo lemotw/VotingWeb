@@ -4,6 +4,9 @@ namespace App\Repository\Election;
 
 use Illuminate\Support\Facades\Validator;
 
+use RuntimeException;
+use App\Exceptions\FormatNotMatchException;
+
 use App\Models\Election\Position;
 use App\Contracts\Repository\Election\PositionRepository as PositionRepositoryContract;
 
@@ -61,7 +64,7 @@ class PositionRepository implements PositionRepositoryContract
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('Position create param format not match!');
 
         return Position::create($data);
     }
@@ -69,25 +72,28 @@ class PositionRepository implements PositionRepositoryContract
     /**
      * Update Position.
      * 
-     * @param Positon $position
+     * @param array $data
      * @return Position
      */
     public function update(Position $position)
     {
         //Check data valid or not.
-        $validator = Validator::make($position->toArray(), [
-            'Name' => 'required|string|max:32',
+        $validator = Validator::make($data, [
+            'id' => 'required|integer',
+            'Name' => 'string|max:32',
             'Unit' => 'nullable|string|max:32',
-            'RequireDocument' => 'required|string'
+            'RequireDocument' => 'string'
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('Position update param format not match!');
 
-        if(!$position->update())
-            return NULL;
+        // Get Entity and update
+        $entity = Position::find($data['id']);
+        if($entity->update($data))
+            throw new RuntimeException('Position Eloquent update problem!');
 
-        return $position;
+        return $entity;
     }
 
     /**

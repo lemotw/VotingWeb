@@ -18,13 +18,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Election\Election;
+use App\Models\Election\Candidate;
 use App\Models\Election\ElectionPosition;
 use App\Models\Vote\VoteRecord;
 use App\User;
 use App\Repository\Election\PositionRepository;
 use App\Repository\Election\ElectionPositionRepository;
-use App\Service\Vote\VoteService;
-use App\Exceptions\TestException;
+use App\Repository\Election\ElectionRepository;
+use App\Service\Election\ElectionService;
+use App\Repository\Election\CandidateRepository;
+use App\Repository\Election\CandidateRegisterRepository;
 use App\Repository\Vote\VoteResultRepository;
 
 
@@ -34,11 +37,22 @@ Route::get('/', function () {
 
 // app/Http/routes.php
 Route::get('sendmail', function() {
- $data = ['name' => 'Test', 'verify_code' => 'ewqeq123123'];
- Mail::send('mail.auth.VerifyCode', $data, function($message) {
-  $message->to('lemotw1024@gmail.com')->subject('This is test email');
- });
- return 'Your email has been sent successfully!';
+    $service = new ElectionService();
+    dd($service->ElectionDelete(3));
+    dd($service->ElectionPositionModify([
+        'UID' => 'e9357d17dec0250a785cfdf4a4f66b632f417508629cb688750d0483e70a0e7c',
+        'Name' => '110級資工系學會長'
+    ]));
+    dd($service->ElectionModify([
+        'id' => 7,
+        'Name' => '119三合一選舉',
+        'StartTime' => '2020/01/20',
+        'EndTime' => '2020/06/20',
+        'RegisterStart' => '2020/01/20',
+        'RegisterEnd' => '2020/03/20',
+        'VoteStart' => '2020/04/20',
+        'VoteEnd' => '2020/06/20',
+    ]));
 });
 
 

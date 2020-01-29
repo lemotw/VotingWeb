@@ -4,6 +4,7 @@ namespace App\Repository\Vote;
 
 use Illuminate\Support\Facades\Validator;
 
+use RuntimeException;
 use App\Exceptions\FormatNotMatchException;
 use App\Exceptions\RelatedObjectNotFoundException;
 
@@ -56,14 +57,22 @@ class VoteResultRepository implements VoteResultRepositoryContract
     /**
      * Update Vote Result.
      * 
-     * @param VoteResult $voteResult
+     * @param array $data
      * @return VoteResult
      */
-    public function update($voteResult)
+    public function update($data)
     {
+        // Get Vote Result Entity
+        $voteResult = VoteResult::where('ElectionPosition', $data['ElectionPosition'])
+                                ->where('Candidate', $data['Candidate'])->first();
+        if($voteResult != NULL)
+            throw new RuntimeException('VoteResult not found!');
+
+        // Check ElectionPosition Exist
         if(!ElectionPosition::isExist(['UID' => $data['ElectionPosition']], true))
             throw new RelatedObjectNotFoundException('ElectionPosition object not found!');
 
+        // Check Candidate Exist
         if(Candidate::isExist(['Candidate' => $data['Candidate']], true))
         {
             $CandidateEntity = Candidate::find($data['Candidate']);
@@ -71,7 +80,8 @@ class VoteResultRepository implements VoteResultRepositoryContract
         } else if($data['Candidate'] != 'broken')
             throw new RelatedObjectNotFoundException('Candidate object not found!');
 
-        if(!$voteResult->update())
+        // Update VoteResult
+        if(!$voteResult->update($data))
             throw new RuntimeException('VoteResult update problem!');
 
         return $voteResult;

@@ -2,6 +2,12 @@
 
 namespace App\Repository\Election;
 
+use Illuminate\Support\Facades\Validator;
+
+use RuntimeException;
+use App\Exceptions\FormatNotMatchException;
+use App\Exceptions\RelatedObjectNotFoundException;
+
 use App\Models\Election\Candidate;
 use App\Models\Election\ElectionPosition;
 use App\Contracts\Repository\Election\CandidateRepository as CandidateRepositoryContract;
@@ -54,18 +60,17 @@ class CandidateRepository implements CandidateRepositoryContract
     {
         //Check data valid or not.
         $validator = Validator::make($data, [
-            'Candidate' => 'required|string|max:64',
             'Name' => 'required|string|max:32',
             'ElectionPosition' => 'required|integer',
             'File' => 'required|string|max:64'
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('Candidate create param format not match.');
 
         //Check ElectionPosition is exist or not.
         if(ElectionPosition::find($data['ElectionPosition']) == NULL)
-            return NULL;
+            throw new RelatedObjectNotFoundException('Election Position object not found!');
 
         $data['Candidate'] = hash('sha256', strval(time()).$data['Name'].'Candidate');
 
@@ -75,26 +80,28 @@ class CandidateRepository implements CandidateRepositoryContract
     /**
      * Update Candidate.
      * 
-     * @param Candidate $candidate
+     * @param array $data
      * @return Candidate
      */
-    public function update(Candidate $candidate)
+    public function update($data)
     {
         //Check data valid or not.
-        $validator = Validator::make($candidate->toArray(), [
+        $validator = Validator::make($data, [
             'Candidate' => 'required|string|max:64',
-            'Name' => 'required|string|max:32',
-            'ElectionPosition' => 'required|integer',
-            'File' => 'required|string|max:64'
+            'Name' => 'string|max:32',
+            'ElectionPosition' => 'integer',
+            'File' => 'string|max:64'
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('Candidate update param format not match.');
 
-        if(!$candidate->update())
-            return NULL;
+        // Get Entity and update
+        $entity = Candidate::find($data['Candidate']);
+        if(!$entity->update($data))
+            throw new RuntimeException('Candidate Eloquent update problem!');
 
-        return $candidate;
+        return $entity;
     }
 
     /**

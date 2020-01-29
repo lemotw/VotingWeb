@@ -2,6 +2,11 @@
 
 namespace App\Repository\Election;
 
+use Illuminate\Support\Facades\Validator;
+
+use RuntimeException;
+use App\Exceptions\FormatNotMatchException;
+
 use App\Models\Election\Election;
 use App\Contracts\Repository\Election\ElectionRepository as ElectionRepositoryContract;
 
@@ -63,7 +68,7 @@ class ElectionRepository implements ElectionRepositoryContract
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('Election create param format not match!');
 
         return Election::create($data);
     }
@@ -71,13 +76,14 @@ class ElectionRepository implements ElectionRepositoryContract
     /**
      * Update Election.
      * 
-     * @param Election $election
+     * @param array $data
      * @return Election
      */
-    public function update(Election $election)
+    public function update($data)
     {
         //Check data valid or not.
-        $validator = Validator::make($election->toArray(), [
+        $validator = Validator::make($data, [
+            'id' => 'required|integer',
             'Name' => 'required|string|max:32',
             'StartTime' => 'required|date',
             'EndTime' => 'required|date',
@@ -88,12 +94,14 @@ class ElectionRepository implements ElectionRepositoryContract
         ]);
 
         if($validator->fails())
-            return NULL;
+            throw new FormatNotMatchException('Election update param format not match!');
 
-        if(!$election->update())
-            return NULL;
+        // Get entity and update
+        $entity = Election::find($data['id']);
+        if(!$entity->update($data))
+            throw new RuntimeException('Election Eloquent update failed.');
 
-        return $election;
+        return $entity;
     }
 
     /**

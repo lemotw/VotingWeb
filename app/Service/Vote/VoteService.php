@@ -152,7 +152,7 @@ class VoteService implements VoteServiceContract
         if(!isset($payload['ElectionPosition']))
             throw new VotePayloadException('Payload qualify Problem');
 
-        $electionPosition = $this->electionPositionRepository->get($payload['ElectionPosition']);
+        $electionPosition = $this->electionPositionRepository->getBy(['UID' => $payload['ElectionPosition']])->first();
         if($electionPosition == NULL)
             throw new RelatedObjectNotFoundException('ElectionPosition object not found!');
 
@@ -189,7 +189,7 @@ class VoteService implements VoteServiceContract
      */
     public function CalculateVoteResult($electionPositionUID)
     {
-        $electionPosition = $this->electionPositionRepository->get($electionPositionUID);
+        $electionPosition = $this->electionPositionRepository->getBy(['UID' => $electionPositionUID])->first();
 
         switch($electionPosition->ElectionType)
         {
