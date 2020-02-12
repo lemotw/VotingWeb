@@ -16,10 +16,15 @@ class Candidate extends Model
     protected $table = 'Candidate';
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
 
-    protected $fillable = [ 'Candidate', 'Name', 'ElectionPosition', 'File' ];
+    protected $fillable = [ 'Candidate', 'Name', 'ElectionPosition', 'CandidateRegister' ];
 
     public function ElectionPositionEntity()
     {
         return $this->belongsTo('App\Models\Election\ElectionPosition', 'ElectionPosition', 'id');
+    }
+
+    public function CandidateRegisterEntity()
+    {
+        return $this->belongsTo('App\Models\Elction\CandidateRegister', 'CandidateRegister', 'id');
     }
 }

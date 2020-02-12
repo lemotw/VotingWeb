@@ -52,4 +52,21 @@ interface CandidateRegisterRepository
      * @return bool
      */
     public function delete(CandidateRegister $position);
+
+    /**
+     * Fetch Entity by credential.
+     * 
+     * @param $array $credentials
+     * @return CandidateRegister
+     */
+    public function fetchByCredential($credentials);
+
+    /**
+     * Valid credential.
+     * 
+     * @param CandidateRegister $candidate
+     * @param array $credentials
+     * @return bool
+     */
+    public function validCredential(CandidateRegister $candidate, $credentials);
 }

@@ -55,6 +55,7 @@ class Election extends Migration
             $table->string('account', 128);
             $table->string('password', 256);
             $table->integer('ElectionPosition');
+            $table->string('token', 128);
             //relation to ElectionPosition
             $table->timestamps();
             $table->softDeletes();
@@ -64,8 +65,7 @@ class Election extends Migration
             $table->string('Candidate', 64);
             $table->string('Name', 32);
             $table->integer('ElectionPosition');
-            $table->string('File', 64);
-            //To download File.
+            $table->integer('CandidateRegister');
             $table->timestamps();
             $table->softDeletes();
 

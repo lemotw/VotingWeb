@@ -9,6 +9,7 @@ use App\Exceptions\FormatNotMatchException;
 use App\Exceptions\RelatedObjectNotFoundException;
 
 use App\Models\Election\Candidate;
+use App\Models\Election\CandidateRegister;
 use App\Models\Election\ElectionPosition;
 use App\Contracts\Repository\Election\CandidateRepository as CandidateRepositoryContract;
 
@@ -62,7 +63,7 @@ class CandidateRepository implements CandidateRepositoryContract
         $validator = Validator::make($data, [
             'Name' => 'required|string|max:32',
             'ElectionPosition' => 'required|integer',
-            'File' => 'required|string|max:64'
+            'CandidateRegister' => 'required|integer'
         ]);
 
         if($validator->fails())
@@ -71,6 +72,10 @@ class CandidateRepository implements CandidateRepositoryContract
         //Check ElectionPosition is exist or not.
         if(ElectionPosition::find($data['ElectionPosition']) == NULL)
             throw new RelatedObjectNotFoundException('Election Position object not found!');
+
+        //Check CandidateRegister is exist or not
+        if(CandidateRegister::find($data['CandidateRegister']) == NULL)
+            throw new RelatedObjectNotFoundException('CandidateRegister object not found!');
 
         $data['Candidate'] = hash('sha256', strval(time()).$data['Name'].'Candidate');
 
@@ -90,7 +95,7 @@ class CandidateRepository implements CandidateRepositoryContract
             'Candidate' => 'required|string|max:64',
             'Name' => 'string|max:32',
             'ElectionPosition' => 'integer',
-            'File' => 'string|max:64'
+            'CandidateRegister' => 'integer'
         ]);
 
         if($validator->fails())

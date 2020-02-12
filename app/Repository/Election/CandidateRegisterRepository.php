@@ -2,6 +2,8 @@
 
 namespace App\Repository\Election;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 use RuntimeException;
@@ -80,13 +82,14 @@ class CandidateRegisterRepository implements CandidateRegisterRepositoryContract
      * Update Candidate Register.
      * 
      * @param array $data
+     * @param CandidateRegister $candidate
      * @return CandidateRegister
      */
-    public function update($data)
+    public function update($data, CandidateRegister $candidate = NULL)
     {
         //Check data valid or not.
         $validator = Validator::make($data, [
-            'id' => 'required|integer',
+            'id' => 'integer',
             'Name' => 'required|string|max:32',
             'account' => 'required|string|max:128',
             'password' => 'required|string|max:256',
@@ -101,7 +104,11 @@ class CandidateRegisterRepository implements CandidateRegisterRepositoryContract
             throw new RelatedObjectNotFoundException('Election Position object not found!');
 
         // Get Entity and update
-        $entity = CandidateRegister::find($data['id']);
+        if(!$candidate && isset($data['id']))
+            $entity = CandidateRegister::find($data['id']);
+        else if($candidate)
+            $entity = $candidate;
+
         if(!$entity->update($data))
             throw new RuntimeException('CandidateRegister Eloquent update problem!');
 
@@ -117,5 +124,49 @@ class CandidateRegisterRepository implements CandidateRegisterRepositoryContract
     public function delete(CandidateRegister $candidate)
     {
         return $candidate->delete();
+    }
+
+    /**
+     * Fetch Entity by credential.
+     * 
+     * @param $array $credentials
+     * @return CandidateRegister
+     */
+    public function fetchByCredential($credentials)
+    {
+        if (empty($credentials) ||
+           (count($credentials) === 1 &&
+            array_key_exists('password', $credentials))) {
+            return;
+        }
+        // First we will add each credential element to the query as a where clause.
+        // Then we can execute the query and, if we found a user, return it in a
+        // Eloquent User "model" that will be utilized by the Guard instances.
+        $query = new CandidateRegister;
+
+        foreach ($credentials as $key => $value) {
+            if (Str::contains($key, 'password')) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                $query = $query->whereIn($key, $value);
+            } else {
+                $query = $query->where($key, $value);
+            }
+        }
+        return $query->first();
+    }
+
+    /**
+     * Valid credential.
+     * 
+     * @param CandidateRegister $candidate
+     * @param array $credentials
+     * @return bool
+     */
+    public function validCredential(CandidateRegister $candidate, $credentials)
+    {
+        return Hash::check($credentials['password'], $candidate->password);
     }
 }

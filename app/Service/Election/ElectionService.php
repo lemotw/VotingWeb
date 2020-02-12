@@ -43,6 +43,7 @@ class ElectionService implements ElectionServiceContract
     }
 
     /**
+     * 
      * Add a Election
      * 
      * @param array $data

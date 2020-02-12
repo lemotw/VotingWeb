@@ -13,7 +13,8 @@ class CandidateRegister extends Model
     protected $primaryKey = 'id';
     protected $table = 'CandidateRegister';
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
-    protected $fillable = [ 'Name', 'account', 'password', 'ElectionPosition' ];
+    protected $fillable = [ 'Name', 'account', 'password', 'ElectionPosition', 'token' ];
+    protected $hidden = ['password', 'token'];
 
     public function ElectionPosition()
     {
