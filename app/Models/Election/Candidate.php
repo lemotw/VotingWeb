@@ -16,15 +16,15 @@ class Candidate extends Model
     protected $table = 'Candidate';
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
 
-    protected $fillable = [ 'Candidate', 'Name', 'ElectionPosition', 'CandidateRegister' ];
+    protected $fillable = [ 'Candidate', 'Name', 'account', 'password' ];
 
-    public function ElectionPositionEntity()
+    public function ElectionPositions()
     {
-        return $this->belongsTo('App\Models\Election\ElectionPosition', 'ElectionPosition', 'id');
-    }
-
-    public function CandidateRegisterEntity()
-    {
-        return $this->belongsTo('App\Models\Elction\CandidateRegister', 'CandidateRegister', 'id');
+        return $this->belongsToMany(
+            'App\Models\Election\ElectionPosition',
+            'App\Models\Election\CandidateElectionPosition',
+            'Candidate',
+            'ElectionPosition'
+        );
     }
 }

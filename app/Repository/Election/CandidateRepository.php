@@ -2,14 +2,15 @@
 
 namespace App\Repository\Election;
 
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+use Str;
 use RuntimeException;
 use App\Exceptions\FormatNotMatchException;
 use App\Exceptions\RelatedObjectNotFoundException;
 
 use App\Models\Election\Candidate;
-use App\Models\Election\CandidateRegister;
 use App\Models\Election\ElectionPosition;
 use App\Contracts\Repository\Election\CandidateRepository as CandidateRepositoryContract;
 
@@ -62,20 +63,12 @@ class CandidateRepository implements CandidateRepositoryContract
         //Check data valid or not.
         $validator = Validator::make($data, [
             'Name' => 'required|string|max:32',
-            'ElectionPosition' => 'required|integer',
-            'CandidateRegister' => 'required|integer'
+            'account' => 'required|email|max:128',
+            'password' => 'required|string|max:256'
         ]);
 
         if($validator->fails())
             throw new FormatNotMatchException('Candidate create param format not match.');
-
-        //Check ElectionPosition is exist or not.
-        if(ElectionPosition::find($data['ElectionPosition']) == NULL)
-            throw new RelatedObjectNotFoundException('Election Position object not found!');
-
-        //Check CandidateRegister is exist or not
-        if(CandidateRegister::find($data['CandidateRegister']) == NULL)
-            throw new RelatedObjectNotFoundException('CandidateRegister object not found!');
 
         $data['Candidate'] = hash('sha256', strval(time()).$data['Name'].'Candidate');
 
@@ -94,8 +87,8 @@ class CandidateRepository implements CandidateRepositoryContract
         $validator = Validator::make($data, [
             'Candidate' => 'required|string|max:64',
             'Name' => 'string|max:32',
-            'ElectionPosition' => 'integer',
-            'CandidateRegister' => 'integer'
+            'account' => 'email|max:128',
+            'password' => 'string|max:256'
         ]);
 
         if($validator->fails())
@@ -118,5 +111,49 @@ class CandidateRepository implements CandidateRepositoryContract
     public function delete(Candidate $candidate)
     {
         return $candidate->delete();
+    }
+
+    /**
+     * Fetch Entity by credential.
+     * 
+     * @param $array $credentials
+     * @return Candidate
+     */
+    public function fetchByCredential($credentials)
+    {
+        if (empty($credentials) ||
+           (count($credentials) === 1 &&
+            array_key_exists('password', $credentials))) {
+            return;
+        }
+        // First we will add each credential element to the query as a where clause.
+        // Then we can execute the query and, if we found a user, return it in a
+        // Eloquent User "model" that will be utilized by the Guard instances.
+        $query = new Candidate;
+
+        foreach ($credentials as $key => $value) {
+            if (Str::contains($key, 'password')) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                $query = $query->whereIn($key, $value);
+            } else {
+                $query = $query->where($key, $value);
+            }
+        }
+        return $query->first();
+    }
+
+    /**
+     * Valid credential.
+     * 
+     * @param Candidate $candidate
+     * @param array $credentials
+     * @return bool
+     */
+    public function validCredential(Candidate $candidate, $credentials)
+    {
+        return Hash::check($credentials['password'], $candidate->password);
     }
 }

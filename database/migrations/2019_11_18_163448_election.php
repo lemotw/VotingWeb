@@ -61,11 +61,22 @@ class Election extends Migration
             $table->softDeletes();
         });
 
+        Schema::create('CandidateElectionPosition', function (Blueprint $table) {
+            $table->Increments('id');
+            $table->string('Candidate', 64);
+            $table->Increments('ElectionPosition');
+            $table->string('path', 128);
+            $table->boolean('CandidateSet');
+            //path to local file
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
         Schema::create('Candidate', function (Blueprint $table) {
             $table->string('Candidate', 64);
             $table->string('Name', 32);
-            $table->integer('ElectionPosition');
-            $table->integer('CandidateRegister');
+            $table->string('account', 128);
+            $table->string('password', 256);
             $table->timestamps();
             $table->softDeletes();
 

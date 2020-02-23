@@ -2,12 +2,12 @@
 
 namespace App\Contracts\Service\Election;
 
-use App\Models\Election\CandidateRegister;
+use App\Models\Election\Candidate;
 
-interface CandidateRegisterGuard
+interface CandidateGuard
 {
     /**
-     * Attemp to CandidateRegister using given credential.
+     * Attemp to Candidate using given credential.
      * 
      * @param array $credentials
      * @return bool
@@ -15,9 +15,9 @@ interface CandidateRegisterGuard
     public function attempt($credentials);
 
     /**
-     * Update Session and set current CandidateRegister.
+     * Update Session and set current Candidate.
      * 
-     * @param CandidateRegister $candidate
+     * @param Candidate $candidate
      * @return void
      */
     public function login($candidate);
@@ -30,9 +30,9 @@ interface CandidateRegisterGuard
     public function logout();
 
     /**
-     * Get current CandidateRegister
+     * Get current Candidate
      * 
-     * @return CandidateRegister
+     * @return Candidate
      */
     public function candidate();
 }

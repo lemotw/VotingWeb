@@ -3,7 +3,7 @@
 namespace App\Contracts\Service\Election;
 
 use Illuminate\Http\UploadedFile;
-use App\Models\Election\CandidateRegister;
+use App\Models\Election\Candidate;
 
 interface CandidateService
 {
@@ -11,7 +11,7 @@ interface CandidateService
      * Open to anyone to Register.
      * 
      * @param array $data
-     * @return CandidateRegister
+     * @return Candidate
      */
     public function CandidateRegister($data);
 
@@ -24,9 +24,9 @@ interface CandidateService
     public function CandidateLogin($credentials);
 
     /**
-     * Get current CandidateRegister
+     * Get current Candidate
      * 
-     * @return CandidateRegister
+     * @return Candidate
      */
     public function Candidate();
 
@@ -34,23 +34,23 @@ interface CandidateService
      * Upload file.
      * 
      * @param UploadedFile $file
-     * @param CandidateRegister $candidate
+     * @param Candidate $candidate
      * @return UploadedFile
      */
-    public function CandidateFileUpload(UploadedFile $file, CandidateRegister $candidate);
+    public function CandidateFileUpload(UploadedFile $file, Candidate $candidate);
 
     /**
-     * Modify Candidate Register infomation.
+     * Modify Candidate infomation.
      * 
      * @param array $data
-     * @param CandidateRegister $candidate
-     * @return CandidateRegister
+     * @param Candidate $candidate
+     * @return Candidate
      */
-    public function CandidateModify($data, CandidateRegister $candidate);
+    public function CandidateModify($data, Candidate $candidate);
     
 
     /**
-     * Move CandidateRegister to Candidate.
+     * Move Candidate to Candidate.
      * 
      * @param integer $id
      * @return Candidate

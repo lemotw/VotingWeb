@@ -3,13 +3,16 @@
 namespace App\Service\Election;
 
 use Session;
+use Carbon\Carbon;
 use RuntimeException;
+
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 
-use App\Models\Election\CandidateRegister;
+use App\Models\Election\Candidate;
 use App\Repository\Election\CandidateRepository;
-use App\Repository\Election\CandidateRegisterRepository;
+use App\Repository\Election\ElectionRepository;
+use App\Repository\Election\ElectionPositionRepository;
 
 use App\Contracts\Service\Election\CandidateService as CandidateServiceContract;
 
@@ -31,14 +34,21 @@ class CandidateService implements CandidateServiceContract
     protected $candidateRepository;
 
     /**
-     * Repository provide CandidateRegister.
+     * Repository provide Election.
      * 
-     * @var CandidateRegisterRepository
+     * @var ElectionRepository
      */
-    protected $candidateRegisterRepository;
+    protected $electionRepository;
 
     /**
-     * Create a new CandidateRegister Guard.
+     * Repository provide ElectionPosition.
+     * 
+     * @var ElectionPositionRepository
+     */
+    protected $electionPositionRepository;
+
+    /**
+     * Create a new Candidate Guard.
      * 
      * @return void
      */
@@ -46,14 +56,52 @@ class CandidateService implements CandidateServiceContract
     {
         $this->guards = ['time' => time()];
         $this->candidateRepository = new CandidateRepository;
-        $this->candidateRegisterRepository = new CandidateRegisterRepository;
+        $this->electionRepository = new ElectionRepository;
+        $this->electionPositionRepository = new ElectionPositionRepository;
+    }
+
+    /**
+     * Search Candidate.
+     * 
+     * @param array $condition
+     * @return ICollection
+     */
+    public function CandidateSearch($condition)
+    {
+        /**
+         * $condition = [
+         *      'key' => $value,
+         *      'key2' => $value2
+         * ]
+         */
+        if(!$condition)
+            return $this->candidateRepository->all();
+
+        return $this->candidateRepository->getBy($condition);
+    }
+
+    /**
+     * Get ElectionPosition that Candidate can Select.
+     * 
+     * @return ICollection
+     */ 
+    public function CandidatePositionSelection()
+    {
+        $time = Carbon::now();
+        $elections = $this->electionRepository->RegisterHold($time);
+        
+        $positions = collect();
+        foreach($elections as $election)
+            $positions = $positions->concat($election->ElectionPositionEntity);
+
+        return $positions;
     }
 
     /**
      * Open to anyone to Register.
      * 
      * @param array $data
-     * @return CandidateRegister
+     * @return Candidate
      */
     public function CandidateRegister($data)
     {
@@ -61,7 +109,7 @@ class CandidateService implements CandidateServiceContract
         if(isset($data['password']))
             $data['password'] = Hash::make($data['password']);
 
-        return $this->candidateRegisterRepository->create($data);
+        return $this->candidateRepository->create($data);
     }
 
     /**
@@ -78,9 +126,9 @@ class CandidateService implements CandidateServiceContract
     }
 
     /**
-     * Get current CandidateRegister
+     * Get current Candidate
      * 
-     * @return CandidateRegister
+     * @return Candidate
      */
     public function Candidate()
     {
@@ -94,10 +142,10 @@ class CandidateService implements CandidateServiceContract
      * Upload file.
      * 
      * @param UploadedFile $file
-     * @param CandidateRegister $candidate
+     * @param Candidate $candidate
      * @return UploadedFile
      */
-    public function CandidateFileUpload(UploadedFile $file, CandidateRegister $candidate)
+    public function CandidateFileUpload(UploadedFile $file, Candidate $candidate)
     {
         if(!$candidate)
             throw new RuntimeException('Candidate in guard is NULL.');
@@ -109,38 +157,28 @@ class CandidateService implements CandidateServiceContract
     }
 
     /**
-     * Modify Candidate Register infomation.
+     * Modify Candidate infomation.
      * 
      * @param array $data
-     * @return CandidateRegister
+     * @return Candidate
      */
-    public function CandidateModify($data, CandidateRegister $candidate)
+    public function CandidateModify($data, Candidate $candidate = null)
     {
         if(isset($data['password']))
             $data['password'] = Hash::make($data['password']);
 
-        return $this->candidateRegisterRepository->update($data, $candidate);
+        return $this->candidateRepository->update($data);
     }
     
 
     /**
-     * Move CandidateRegister to Candidate.
+     * Move Candidate to Candidate.
      * 
-     * @param integer $id
+     * @param string $uid
      * @return Candidate
      */
-    public function CandidateSet($id)
+    public function CandidateSet($uid)
     {
-        if(!$candidateRegister = $this->candidateRegisterRepository->get($id))
-            throw new RuntimeException('CandidateRegister not found.');
-
-        $dataset = [
-            'Name' => $candidateRegister->Name,
-            'ElectionPosition' => $candidateRegister->ElectionPosition,
-            'CandidateRegister' => $id
-        ];
-
-        return $this->candidateRepository->create($dataset);
     }
 
     /**
@@ -173,7 +211,7 @@ class CandidateService implements CandidateServiceContract
     /**
      * Get current session guard.
      * 
-     * @return CandidateRegisterGuard
+     * @return CandidateGuard
      */
     protected function guard()
     {
@@ -183,11 +221,11 @@ class CandidateService implements CandidateServiceContract
     /**
      * Generate a new guard, and put in Session
      * 
-     * @return CandidateRegisterGuard
+     * @return CandidateGuard
      */
     protected function new_guard()
     {
-        $guard = new CandidateRegisterGuard;
+        $guard = new CandidateGuard;
         Session::put($this->getGuardName(), $guard);
         return $guard;
     }

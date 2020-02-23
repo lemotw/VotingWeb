@@ -4,27 +4,27 @@ namespace App\Service\Election;
 
 use Session;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Election\CandidateRegister;
-use App\Repository\Election\CandidateRegisterRepository;
+use App\Models\Election\Candidate;
+use App\Repository\Election\CandidateRepository;
 
-use App\Contracts\Service\Election\CandidateRegisterGuard as CandidateRegisterGuardContract;
+use App\Contracts\Service\Election\CandidateGuard as CandidateGuardContract;
 
-class CandidateRegisterGuard implements CandidateRegisterGuardContract
+class CandidateGuard implements CandidateGuardContract
 {
 
     /**
-     * Temp CandidateRegister by the guard.
+     * Temp Candidate by the guard.
      * 
-     * @var App\Models\Election\CandidateRegister
+     * @var App\Models\Election\Candidate
      */
     protected $candidate;
 
     /**
      * The Repository used by the guard.
      * 
-     * @var App\Contracts\Repository\Election\CandidateRegisterRepository
+     * @var App\Contracts\Repository\Election\CandidateRepository
      */
-    protected $CandidateRegisterRepository;
+    protected $CandidateRepository;
 
 
     /**
@@ -42,7 +42,7 @@ class CandidateRegisterGuard implements CandidateRegisterGuardContract
     protected $session;
 
     /**
-     * Create a new CandidateRegister Guard.
+     * Create a new Candidate Guard.
      * 
      * @return void
      */
@@ -50,11 +50,11 @@ class CandidateRegisterGuard implements CandidateRegisterGuardContract
     {
         $this->candidate = NULL;
         $this->loggedOut = true;
-        $this->CandidateRegisterRepository = new CandidateRegisterRepository();
+        $this->CandidateRepository = new CandidateRepository();
     }
 
     /**
-     * Attemp to CandidateRegister using given credential.
+     * Attemp to Candidate using given credential.
      * 
      * @param array $credentials
      * @return bool
@@ -65,10 +65,10 @@ class CandidateRegisterGuard implements CandidateRegisterGuardContract
         if($validator->fails())
             return false;
 
-        // Fetch CandidateRegister to attempt.
-        $candidate = $this->CandidateRegisterRepository->fetchByCredential($credentials);
+        // Fetch Candidate to attempt.
+        $candidate = $this->CandidateRepository->fetchByCredential($credentials);
 
-        if($this->CandidateRegisterRepository->validCredential($candidate, $credentials))
+        if($this->CandidateRepository->validCredential($candidate, $credentials))
         {
             $this->login($candidate);
             return true;
@@ -92,9 +92,9 @@ class CandidateRegisterGuard implements CandidateRegisterGuardContract
     }
 
     /**
-     * Update Session and set current CandidateRegister.
+     * Update Session and set current Candidate.
      * 
-     * @param CandidateRegister $candidate
+     * @param Candidate $candidate
      * @return void
      */
     public function login($candidate)
@@ -115,7 +115,7 @@ class CandidateRegisterGuard implements CandidateRegisterGuardContract
     }
 
     /**
-     * Update Session with CandidateRegister identify.
+     * Update Session with Candidate identify.
      * 
      * @param int $id
      * @return void
@@ -133,25 +133,25 @@ class CandidateRegisterGuard implements CandidateRegisterGuardContract
      */
     public function logout()
     {
-        $this->clearCandidateRegisterData();
+        $this->clearCandidateData();
         $this->candidate = NULL;
         $this->loggedOut = true;
     }
 
     /**
-     * Clear CandidateRegister data from session.
+     * Clear Candidate data from session.
      * 
      * @return void
      */
-    protected function clearCandidateRegisterData()
+    protected function clearCandidateData()
     {
         Session::remove($this->getName());
     }
 
     /**
-     * Get current CandidateRegister
+     * Get current Candidate
      * 
-     * @return CandidateRegister
+     * @return Candidate
      */
     public function candidate()
     {
@@ -171,7 +171,7 @@ class CandidateRegisterGuard implements CandidateRegisterGuardContract
         // First we will try to load the user using the identifier in the session if
         // one exists. Otherwise we will check for a "remember me" cookie in this
         // request, and if one exists, attempt to retrieve the user using that.
-        if (! is_null($id) && $this->candidate = $this->CandidateRegisterRepository->get($id))
+        if (! is_null($id) && $this->candidate = $this->CandidateRepository->get($id))
             return $this->candidate;
 
         return $this->candidate;
