@@ -2,6 +2,8 @@
 
 namespace App\Models\Traits;
 
+use Illuminate\Support\Collection;
+
 trait CheckExist
 {
     /**
@@ -20,6 +22,10 @@ trait CheckExist
 
         foreach($condition as $column => $data)
             $entities->where($column, $data);
+
+        // if deleted_at contain.
+        if($entities instanceof Collection)
+            return !$entities->isEmpty();
 
         return !$entities->get()->isEmpty();
     }

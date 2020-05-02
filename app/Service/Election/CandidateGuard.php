@@ -100,7 +100,7 @@ class CandidateGuard implements CandidateGuardContract
     public function login($candidate)
     {
         $this->candidate = $candidate;
-        $this->updateSession($candidate->id);
+        $this->updateSession($candidate->Candidate);
         $this->loggedOut = false;
     }
 
@@ -117,12 +117,12 @@ class CandidateGuard implements CandidateGuardContract
     /**
      * Update Session with Candidate identify.
      * 
-     * @param int $id
+     * @param string $UID
      * @return void
      */
-    protected function updateSession($id)
+    protected function updateSession($UID)
     {
-        Session::put($this->getName() ,$id);
+        Session::put($this->getName() ,$UID);
         Session::migrate(true);
     }
 
@@ -159,22 +159,34 @@ class CandidateGuard implements CandidateGuardContract
             return NULL;
         }
 
+        $UID = Session::get($this->getName());
         // If we've already retrieved the candidate for the current request we can just
         // return it back immediately. We do not want to fetch the candidate data on
         // every call to this method because that would be tremendously slow.
-        if (! is_null($this->candidate)) {
+        if (!is_null($this->candidate)) {
             return $this->candidate;
         }
-
-        $id = Session::get($this->getName());
 
         // First we will try to load the user using the identifier in the session if
         // one exists. Otherwise we will check for a "remember me" cookie in this
         // request, and if one exists, attempt to retrieve the user using that.
-        if (! is_null($id) && $this->candidate = $this->CandidateRepository->get($id))
+        if (!is_null($UID) && $this->candidate = $this->CandidateRepository->get($UID))
             return $this->candidate;
 
         return $this->candidate;
+    }
+
+    /**
+     * Refresh Candidate from database.
+     * 
+     * @return Candidate
+     */
+    public function refreshCandidate()
+    {
+        if(!$candidate = $this->candidate())
+            return NULL;
+
+        return $candidate->refresh();
     }
 
     /**

@@ -16,6 +16,7 @@ class ElectionPosition extends Model
     protected $table = 'ElectionPosition';
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
     protected $fillable = ['UID', 'Name', 'Election', 'Position', 'ElectionType' ];
+    protected $visible = [ 'UID', 'Name' ];
 
     public function ElectionEntity()
     {
@@ -25,5 +26,10 @@ class ElectionPosition extends Model
     public function PositionEntity()
     {
         return $this->belongsTo('App\Models\Election\Position', 'Position', 'id');
+    }
+
+    public function CandidateElectionPosition()
+    {
+        return $this->hasMany('App\Models\Election\CandidateElectionPosition', 'ElectionPosition', 'id');
     }
 }

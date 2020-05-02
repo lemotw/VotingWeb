@@ -16,7 +16,27 @@ class CandidateElectionPosition extends Model
     protected $table = 'CandidateElectionPosition';
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
 
-    protected $fillable = [ 'Candidate', 'ElectionPosition', 'path', 'CandidateSet' ];
+    protected $visible = [ 'Candidate', 'name', 'path', 'exp', 'CandidateImage' ];
+    protected $fillable = [ 'Candidate', 'ElectionPosition', 'path', 'exp', 'CandidateSet' ];
+    protected $appends = [ 'name','CandidateImage' ];
+
+    public function getFilePathAttribute()
+    {
+        if($this->CandidateEntity == NULL)
+            return NULL;
+
+        return 'Candidate/'.$this->CandidateEntity->Candidate.'/'.strval($this->ElectionPosition).'/'.$this->path;
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->CandidateEntity?$this->CandidateEntity->Name:NULL;
+    }
+
+    public function getCandidateImageAttribute()
+    {
+        return $this->CandidateEntity?$this->CandidateEntity->imageURL:NULL;
+    }
 
     public function ElectionPositionEntity()
     {
@@ -25,6 +45,6 @@ class CandidateElectionPosition extends Model
 
     public function CandidateEntity()
     {
-        return $this->belongsTo('App\Models\Elction\Candidate', 'Candidate', 'Candidate');
+        return $this->belongsTo('App\Models\Election\Candidate', 'Candidate', 'Candidate');
     }
 }

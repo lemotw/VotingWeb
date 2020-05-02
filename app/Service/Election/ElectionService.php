@@ -8,9 +8,12 @@ use RuntimeException;
 use App\Exceptions\RelatedObjectNotFoundException;
 
 use App\Models\Election\Election;
+use App\Models\Election\Position;
 use App\Models\Election\ElectionPosition;
+use App\Repository\Election\PositionRepository;
 use App\Repository\Election\ElectionRepository;
 use App\Repository\Election\ElectionPositionRepository;
+use App\Repository\Election\CandidateElectionPositionRepository;
 
 use App\Contracts\Service\Election\ElectionService as ElectionServiceContract;
 
@@ -30,6 +33,18 @@ class ElectionService implements ElectionServiceContract
     protected $electionPositionRepository;
 
     /**
+     * Access Candidate Election Position.
+     * @var \App\Repository\Election\CandidateElectionPositionRepository
+     */
+    protected $candidateElectionPositionRepository;
+
+    /**
+     * Access Position.
+     * @var \App\Repository\Election\PositionRepository
+     */
+    protected $positionRepository;
+
+    /**
      * Create repository.
      *
      * @return void
@@ -40,6 +55,71 @@ class ElectionService implements ElectionServiceContract
     {
         $this->electionRepository = new ElectionRepository();
         $this->electionPositionRepository = new ElectionPositionRepository();
+        $this->candidateElectionPositionRepository = new CandidateElectionPositionRepository();
+        $this->positionRepository = new PositionRepository();
+    }
+
+    /**
+     * Get election by id.
+     * 
+     * @param integer $id
+     * @return Election
+     */
+    public function ElectionGet($id)
+    {
+        return $this->electionRepository->get($id);
+    }
+
+    /**
+     * Get election position by id.
+     * 
+     * @param integer $id
+     * @return ElectionPosition
+     */
+    public function ElectionPositionGet($id)
+    {
+        return $this->electionPositionRepository->get($id);
+    }
+
+    /**
+     * Get position by id.
+     * 
+     * @param integer $id
+     * @return Position
+     */
+    public function PositionGet($id)
+    {
+        return $this->positionRepository->get($id);
+    }
+
+    /**
+     * Get All Position.
+     * 
+     * @return ICollection
+     */
+    public function Position()
+    {
+        return Position::all();
+    }
+
+    /**
+     * Search Election.
+     * 
+     * @param array $condition
+     * @return Illuminate\Support\Collection
+     */
+    public function ElectionSearch($condition = null)
+    {
+        /**
+         * $condition = [
+         *      'key' => $value,
+         *      'key2' => $value2
+         * ]
+         */
+        if(!$condition)
+            return $this->electionRepository->all();
+
+        return $this->electionRepository->getBy($condition);
     }
 
     /**
@@ -104,10 +184,9 @@ class ElectionService implements ElectionServiceContract
      * @throws App\Exceptions\FormatNotMatchException
      * @throws App\Exceptions\RelatedObjectNotFoundException
      */
-    public function ElectionPositionAdd($ElectionId, $data)
+    public function ElectionPositionAdd($data)
     {
-        $data['Election'] = $ElectionId;
-        $this->electionPositionRepository->create($data);
+        return $this->electionPositionRepository->create($data);
     }
 
     /**
@@ -130,5 +209,52 @@ class ElectionService implements ElectionServiceContract
     public function ElectionPositionDelete($id)
     {
         return $this->electionPositionRepository->delete(ElectionPosition::find($id));
+    }
+
+    /**
+     * Add Position.
+     * 
+     * @param array $data
+     * @return ElectionPosition
+     * 
+     * @throws App\Exceptions\FormatNotMatchException
+     * @throws App\Exceptions\RelatedObjectNotFoundException
+     */
+    public function PositionAdd($data)
+    {
+        $this->positionRepository->create($data);
+    }
+
+    /**
+     * Modify Position infomation.
+     * 
+     * @param array $data
+     * @return ElectionPosition
+     */
+    public function PositionModify($data)
+    {
+        return $this->positionRepository->update($data);
+    }
+
+    /**
+     * Delete Position.
+     * 
+     * @param int $id
+     * @return bool
+     */
+    public function PositionDelete($id)
+    {
+        return $this->positionRepository->delete($this->PositionGet($id));
+    }
+
+    /**
+     * Get Candidate Election Position to check.
+     * 
+     * @param int $id
+     * @return bool
+     */
+    public function CandidateElectionPositionGet($id)
+    {
+        return $this->candidateElectionPositionRepository->get($id);
     }
 }

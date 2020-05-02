@@ -68,7 +68,7 @@ class CandidateRepository implements CandidateRepositoryContract
         ]);
 
         if($validator->fails())
-            throw new FormatNotMatchException('Candidate create param format not match.');
+            throw new RuntimeException('資料格式問題');
 
         $data['Candidate'] = hash('sha256', strval(time()).$data['Name'].'Candidate');
 
@@ -92,12 +92,12 @@ class CandidateRepository implements CandidateRepositoryContract
         ]);
 
         if($validator->fails())
-            throw new FormatNotMatchException('Candidate update param format not match.');
+            throw new RuntimeException('資料格式問題');
 
         // Get Entity and update
         $entity = Candidate::find($data['Candidate']);
         if(!$entity->update($data))
-            throw new RuntimeException('Candidate Eloquent update problem!');
+            throw new RuntimeException('更新發生問題');
 
         return $entity;
     }

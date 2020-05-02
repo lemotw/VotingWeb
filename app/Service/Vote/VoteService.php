@@ -2,6 +2,7 @@
 
 namespace App\Service\Vote;
 
+use Carbon\Carbon;
 use RuntimeException;
 use Illuminate\Support\Facades\Validator;
 
@@ -20,6 +21,7 @@ use App\Repository\Vote\VoteRecordRepository;
 use App\Repository\Vote\VoteResultRepository;
 use App\Repository\Election\ElectionRepository;
 use App\Repository\Election\CandidateRepository;
+use App\Repository\Election\CandidateElectionPositionRepository;
 use App\Repository\Election\ElectionPositionRepository;
 
 use App\Contracts\Service\Vote\VoteService as VoteServiceContract;
@@ -63,6 +65,12 @@ class VoteService implements VoteServiceContract
     protected $candidateRepository;
 
     /**
+     * Access CandidatesElectionPosition.
+     * @var \App\Repository\Election\CandidateElectionPositionRepository
+     */
+    protected $candidateElectionPositionRepository;
+
+    /**
      * Provide Encrypter to Service.
      * @var App\Service\Encrypter
      */
@@ -80,6 +88,7 @@ class VoteService implements VoteServiceContract
         $this->electionRepository = new ElectionRepository();
         $this->authtokenRepository = new AuthTokenRepository();
         $this->candidateRepository = new CandidateRepository();
+        $this->candidateElectionPositionRepository = new CandidateElectionPositionRepository();
         $this->voteRecordRepository = new VoteRecordRepository();
         $this->voteResultRepository = new VoteResultRepository();
         $this->electionPositionRepository = new ElectionPositionRepository();
@@ -95,27 +104,51 @@ class VoteService implements VoteServiceContract
     public function GetVotes($hashedtoken)
     {
         // Get token entity to get election.
-        $token = $this->authtokenRepository->get($hashedtoken);
-        if($token == NULL)
-            return NULL;
+        if(!$token = $this->authtokenRepository->get($hashedtoken))
+            throw new RuntimeException('找不道卡號，請確認是否至驗票台');
 
-        $election = $token->ElectionEntity;
-        if($election == NULL)
-            return NULL;
+        if(!$election = $token->ElectionEntity)
+            throw new RuntimeException('找不道選舉，請向選舉人員反應');
 
-        $votes = [];
+        if($token->Voted)
+            throw new RuntimeException('您已投過票了，請離開投票亭');
+
+        $now = Carbon::now();
+        if($election->VoteStart > $now || $election->VoteEnd < $now)
+            throw new RuntimeException('已超過投票時間，請向選舉人緣確認');
+        
+        $votes = collect();
 
         // iterate all ElectionPosition valid sid qualify
-        $all_position = $election->ElectionPosition;
+        $all_position = $election->ElectionPositionEntity;
         foreach($all_position as $position)
         {
             // Check Position isn't NULL
-            $pos = $position->PositionEntity;
-            if($pos == NULL)
+            if(!$pos = $position->PositionEntity)
                 continue;
 
             if($pos->validSid($token->sid))
-                array_push($votes, $position);
+            {
+                $push_array = $position->toArray();
+
+                // Get Candidates by ElectionPosition id and CandidateSet flag
+                $candidates = $this->candidateElectionPositionRepository->getBy([
+                    'ElectionPosition' => $position->id,
+                    'CandidateSet' => true
+                ]);
+
+                // Set election type
+                if($candidates->count() > 1)
+                {
+                    $push_array['_type'] = 'multiple';
+                    $push_array['_candidate'] = $candidates;
+                } else {
+                    $push_array['_type'] = 'single';
+                    $push_array['_candidate'] = $candidates[0];
+                }
+
+                $votes->push($push_array);
+            }
         }
 
         return $votes;
@@ -140,7 +173,7 @@ class VoteService implements VoteServiceContract
         Json Vote Format
         {
             'token':'testtoken123456',
-            'ElectionPosition':1,
+            'ElectionPosition': 'ElectionPositionUIDHere',
             'Candidate':'CandidateUIDHere',
 
             if YN vote
@@ -172,6 +205,11 @@ class VoteService implements VoteServiceContract
         if($validator->fails())
             throw new VotePayloadException('Payload qualify Problem');
 
+        if(!$token = $this->authtokenRepository->get($payload['token']))
+            return NULL;
+
+        $this->authtokenRepository->setVoted($token);
+
         // Except 'broken' special case, Candidate need exist.
         if(!Candidate::isExist(['Candidate' => $payload['Candidate']]))
             if($payload['Candidate'] != 'broken')
@@ -187,38 +225,33 @@ class VoteService implements VoteServiceContract
      * @param string $electionPositionUID
      * @return VoteResult
      */
-    public function CalculateVoteResult($electionPositionUID)
+    public function CalculateVoteResult($electionPositionID)
     {
-        $electionPosition = $this->electionPositionRepository->getBy(['UID' => $electionPositionUID])->first();
+        $electionPosition = $this->electionPositionRepository->getBy(['id' => $electionPositionID])->first();
 
-        switch($electionPosition->ElectionType)
+        if($electionPosition->CandidateElectionPosition->count() > 1)
         {
-            case VoteType::YN_CHOICE:
-                $voteResult = $this->CalculateYNResult($electionPosition);
+            $voteResult = $this->CalculateMultipleResult($electionPosition);
+            foreach($voteResult as $candidate => $result)
+            {
                 $this->voteResultRepository->save([
                     'ElectionPosition' => $electionPosition->UID,
-                    'Candidate' => $voteResult['candidate'],
-                    'Yes' => $voteResult['Yes'],
-                    'No' => $voteResult['No'],
-                    'disable' => $voteResult['broken']
+                    'Candidate' => $candidate,
+                    'VoteCount' => $result
                 ]);
-                break;
-            case VoteType::MULTIPLE_CHOICE:
-                $voteResult = $this->CalculateMultipleResult($electionPosition);
-                foreach($voteResult as $candidate => $result)
-                {
-                    $this->voteResultRepository->save([
-                        'ElectionPosition' => $electionPosition->UID,
-                        'Candidate' => $candidate,
-                        'VoteCount' => $result
-                    ]);
-                }
-                break;
-            default:
-                //LOG invalid Election Type
+            }
+        } else {
+            $voteResult = $this->CalculateYNResult($electionPosition);
+            $this->voteResultRepository->save([
+                'ElectionPosition' => $electionPosition->UID,
+                'Candidate' => $voteResult['candidate'],
+                'Yes' => $voteResult['Yes'],
+                'No' => $voteResult['No'],
+                'disable' => $voteResult['broken']
+            ]);
         }
 
-        return $this->voteResultRepository->getByElectionPosition($electionPositionUID);
+        return $this->voteResultRepository->getByElectionPosition($electionPosition->UID);
     }
 
     /**
@@ -229,9 +262,10 @@ class VoteService implements VoteServiceContract
      */
     public function CalculateMultipleResult(ElectionPosition $electionPosition)
     {
-        $candidates = $this->candidateRepository->getBy([
-            'ElectionPosition' => $electionPosition->id
-        ]);
+        $candidates = $electionPosition->CandidateElectionPosition;
+        // $this->candidateRepository->getBy([
+        //     'ElectionPosition' => $electionPosition->id
+        // ]);
 
         // Initial VoteCount array set
         $VoteCount = ['broken' => 0];
@@ -260,15 +294,16 @@ class VoteService implements VoteServiceContract
     public function CalculateYNResult(ElectionPosition $electionPosition)
     {
         // Check Candidate count
-        $candidates = $this->candidateRepository->getBy([
-            'ElectionPosition' => $electionPosition->id
-        ]);
+        $candidates = $electionPosition->CandidateElectionPosition;
+        // $candidates = $this->candidateRepository->getBy([
+        //     'ElectionPosition' => $electionPosition->id
+        // ]);
 
         if($candidates->count() != 1)
             throw new RuntimeException('YN election candidate count error!!');
 
         // Update candidate set to Candidate UID
-        $candidates = $candidates[0]->Candidate;
+        $candidates = $candidates->fist()->Candidate;
 
         // Initial vote result set
         $voteresult = [

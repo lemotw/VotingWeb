@@ -35,9 +35,10 @@ interface CandidateService
      * 
      * @param UploadedFile $file
      * @param Candidate $candidate
+     * @param integer $positionId
      * @return UploadedFile
      */
-    public function CandidateFileUpload(UploadedFile $file, Candidate $candidate);
+    public function CandidateFileUpload(UploadedFile $file, Candidate $candidate, $positionId);
 
     /**
      * Modify Candidate infomation.

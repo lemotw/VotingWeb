@@ -41,7 +41,7 @@ function decrypt(encrypted_str, key)
 /**
  * str need serialize with php way.
  */
-function encrypte(str, key)
+function encrypt(str, key)
 {
     var iv = new Uint8Array(16);
     var ENCRYPT_PADDING = 2;

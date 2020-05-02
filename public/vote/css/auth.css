@@ -1,0 +1,809 @@
+/*
+*****************看各區塊直接搜尋CSS
+*/
+
+
+/* 太多人選跑版,改row就好，幾行就改幾行*/
+:root {
+    --h: 80vh;
+    --mh:10vh;
+    --row: 1;      /*1列=1  2列=2*/
+    --pre:calc(var(--mh) * (var(--row)-1));
+    --ah: calc((var(--h) - var(--pre)) / var(--row));
+    --w: 18vw;
+}
+*{
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style:none;
+    box-sizing: border-box;
+}
+/*
+vote主頁面CSS
+*/
+body{
+    width: 100vw;
+    height:100vh;
+    font-family: Microsoft JhengHei;
+    font-size: 12px;
+    background-color: #13161a;
+    color:black;
+    line-height: 1.6;
+    letter-spacing: 2px;
+    overflow-x: hidden;
+    
+}
+
+.top{
+    background-color: #f9f6f7;
+    width: 100%;
+    height: 5vh;
+    display: flex;
+
+}
+.top img{
+    height: 100%;
+}
+.top .item{
+    display: flex;
+    width: 100%;
+    margin-right: 5vw;
+    justify-content: flex-end;
+    align-items: center;
+}
+.top .item a{
+    padding: 15px;
+	color: black;
+    transition: .5s;
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+}
+
+.top .item a:before{
+    content: '';
+    width: 0px;
+    border-bottom:5px solid rgba(87, 87, 87, 0.17);
+    position: absolute;
+    bottom: 0px;
+    left: 0%;
+    transition: .9s;
+}
+
+.top .item a:hover:before{
+    width: 100px;
+}
+.content {
+    width: 100%;
+    height: 85vh;
+	background-color: #ffffff;
+    text-align: center;
+}
+
+.content .wrap{
+    font-family: Microsoft JhengHei;
+    width: 100vw;
+    height: 85vh;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    
+}
+
+.content .wrap .item{
+    position:relative;
+    min-height: 0%;
+    height: var(--ah);
+    width: 18%;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    text-align: center;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    transition: .5s;
+}
+.content .wrap .item img{
+    width: calc(var(--ah) / 3);
+    height: calc(var(--ah) / 3);
+    max-height: 17vw;
+    max-width: 17vw;
+    border: 3px solid rgba(152, 152, 152, 0.13);
+    border-radius: 100% 100% 100% 100%;
+    vertical-align: middle;
+    transition: 1s .4s;
+    
+}
+.content .wrap .item h2{
+    border-bottom: 1px solid black;
+    font-size: 28px;
+    padding-bottom: .3em; 
+    margin-bottom: 10px;
+    font-weight: 900;
+    transition: all .5s
+}
+.content .wrap .item p{
+    line-height: 1.6;
+    transition: .5s;
+}
+.content .wrap .item .txt{
+    padding: 20px;
+    height: 60%;
+    
+}
+.content .wrap .item .txt h1{
+    font-size: 20px;
+}
+.content .wrap .item .txt ul li{
+    margin-top: 0vh;
+    text-align: left;
+    font-size: 14px;
+    transition: .5s;
+}
+
+
+.content .wrap .item:hover{
+    background-image: linear-gradient(0deg,#6d6d6d,#343434);
+    margin-top:1vh;
+}
+.content .wrap .item:hover .txt h2{
+    margin-top: -2vh;
+    color:white;
+    border-bottom-color:  white;
+    font-size: 1;
+}
+.content .item:hover .txt ul li{
+    margin-top:10px;
+    color:white;
+    border-bottom-color:  white;
+}
+.content .wrap .item:hover img{
+    width: 0;
+    height: 0;
+
+    
+}
+.footer{
+    
+    width: 100%;
+    height: 10vh;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+}
+.footer h3{
+    color: wheat;
+    padding: 20px;
+}
+
+.sid_fade{
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255);
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.sid_content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50vw;
+    height: 50vh;
+    background-color: rgb(255, 255, 255);
+}
+.sid_content form{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.sid_content [type='text']{
+    height: 50px;
+    width:45%;
+   
+    font-size:32px;
+    border-radius: 5px;
+    border: 0px solid white;
+    box-shadow: 3px 3px 5px 5px #ebebeb;
+    background: rgba(255, 255, 255, 0);
+}
+.sid_content [type='submit']{
+    width: 35px;
+    height: 35px;
+    margin-left: 1vw;
+    border-radius: 100% 100%;
+    border: 0px solid rgba(255, 255, 255, 0);
+    background-color: rgba(177, 83, 83, 0);
+    background-size: contain;
+    background-image: url('../img/right-arrow.png');
+}
+
+.sign_fade{
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255);
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.sign_content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50vw;
+    height: 50vh;
+    background-color: rgb(255, 255, 255);
+}
+.sign_content form{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.sign_content [type='text']{
+    height: 50px;
+    width:45%;
+   
+    font-size:32px;
+    border-radius: 5px;
+    border: 0px solid white;
+    box-shadow: 3px 3px 5px 5px #ebebeb;
+    background: rgba(255, 255, 255, 0);
+}
+.sign_content [type='submit']{
+    width: 35px;
+    height: 35px;
+    margin-left: 1vw;
+    border-radius: 100% 100%;
+    border: 0px solid rgba(255, 255, 255, 0);
+    background-color: rgba(177, 83, 83, 0);
+    background-size: contain;
+    background-image: url('../img/right-arrow.png');
+}
+.success_fade{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(255, 255, 255);
+    z-index: 1;
+}
+#success_message{
+    width: 600px;
+    height: 200px;
+    background-color: #D75455;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 4em;
+    color: white;
+}
+.anime_fade{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(255, 255, 255);
+    z-index: 1;
+}
+#animate{
+    width: 100px;
+    height: 100px;
+    background-color: rgba(151, 151, 151, 0.822);
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/*登入畫面的CSS*/
+
+.login{
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+    display: none;
+}
+.fade{
+    width: 100%;
+    height: 100%;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.84);
+}
+.loginbox{
+    width: 25vw;
+    height: 25vw;
+    min-width: 300px;
+    min-height: 400px;
+    position: fixed;
+    border-radius: 5%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-image: linear-gradient(90deg,#ffffff,70%,#ffffff);
+    text-align: center;  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+}
+.loginbox h1{
+    font-size: 32px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+.loginbox input[type = "text"],.loginbox input[type ="password"]{
+    border: 0;
+    background: none;
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+    border: 2px solid #908b95;
+    padding: 14px 10px;
+    width: 50%;
+    outline: none;
+   
+    border-radius: 24px;
+    transition: 0.25s;
+}
+.loginbox input[type = "text"]:focus,.loginbox input[type ="password"]:focus{
+    width:70%;
+    border-color: #4a474d;
+}
+.loginbox input[type ="submit"]{
+    border: 0;
+    background: none;
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+    border: 2px solid #908b95;
+    padding: 14px 40px;
+    outline: none;
+    border-radius: 24px;
+    transition: 0.25s;
+    cursor: pointer;
+    
+}
+.loginbox input[type ="submit"]:hover{
+    background:#8d8d8d;
+    border-color: #767676;
+}
+
+/*
+manage修改的CSS
+*/
+/*box背景*/
+.box{
+    width: 100vw;
+    height: 100vh;
+    background-color: #cccccc;
+    display: flex;
+    flex-flow: column;
+    flex-wrap: wrap;
+}
+.topmenu{
+    width: 85vw;
+    height: 7%;
+    background-color: #ffffff;
+}
+.topmenu h2{
+	padding: 10px;
+}
+.leftmenu{
+    min-width:120px;
+    width: 15vw;
+    height: 100vh;
+    background-color: #263e62;
+    font-family: Microsoft JhengHei;
+}
+
+.leftmenu ul{
+    list-style: none;
+    height: 7%;
+    padding: 10px 0px 10px 15px;
+    color: #b9b9b9;
+}
+
+.leftmenu ol{
+    list-style: none;
+    padding: 10px;
+    color: rgba(185, 185, 185, 0.48);
+}
+.leftmenu ul:first-child{
+    padding: 10px;
+    background-color: #1f3048;
+    color: white;
+}
+.leftmenu ul:hover{
+    background-color: rgba(104, 112, 124, 0.56);
+}
+.maincontain{
+    height: 93%;
+    width: 85vw;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/*
+table的CSS
+*/
+.conbine {
+    width: 65vw;
+    height: 70vh;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.tool{
+    background-color: #ffffff;
+    border-radius: 12px 12px 0 0;
+    width: auto;
+    color: black;
+    align-self: flex-end;
+    display: flex;
+    
+}
+.tool a{
+    font-size: 16px;
+    padding: 10px;
+    color: black;
+}
+.tool a:hover{
+    border-radius: 12px 12px 0 0;
+    background-color: gray;
+}
+.table{
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border-radius: 12px 0 12px 12px;
+    width: 65vw;
+    height: 100%;
+    font-size: 18px;
+}
+.table table{
+    font-family:monospace;
+    border-radius: 12px;
+    width: 65vw;
+    border-collapse:collapse;
+    text-align: center;
+}
+.table table a{
+    text-decoration: none;
+    color: black;
+    padding: 5px;
+    background-image: linear-gradient(180deg,rgba(142, 150, 217, 0.35),rgba(142, 150, 217, 0.35));
+}
+.table table tr:first-child{
+    background-color: #263e62;
+}
+.table table tr{
+    background-color: white;
+    border-color: red;
+}
+.table table tr th{
+    background-color:#263e62;
+    color:#e0e0e0;
+    font-family: Microsoft JhengHei;
+
+}
+.table table tr td, .table table tr th{
+    border-bottom: 1px solid #afafaf;
+    padding: 15px;
+    font-family: Microsoft JhengHei;
+}
+ 
+
+.table table tr:hover td{
+      background: rgba(191, 191, 191, 0.29);  
+}
+
+
+.manage{
+    background: white;
+    width: 30vw;
+    height: 50vh;
+    min-width: 300px;
+    min-height: 400px;
+}
+.manage h1{
+    margin-top: 2vh;
+    margin-bottom: 3vh;
+}
+.manage form{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+}
+.manage input[type = "text"], .manage input[type ="password"]{
+    margin-top: 2vh;
+    font-size: 16px;
+    width: 25vw;
+    min-width: 250px;
+    height: 30px;
+}
+.manage input[type = "text"]:focus,.manage input[type ="password"]:focus{
+    border-color: #000000;
+}
+.manage input[type = "submit"], .manage input[type = "button"]{
+    margin: 4vh 1vw 0 1vw;
+    width: 100px;
+    height: 30px;
+    border: none;
+    background-color: rgba(142, 150, 217, 0.35);
+
+}
+.manage input[type = "submit"]:hover, .manage input[type = "button"]:hover{
+    background-color: #b7b7b7;
+}
+
+
+
+/*定义滚动条高宽及背景
+ 高宽分别对应横竖滚动条的尺寸*/
+::-webkit-scrollbar
+{    
+    width:3px;
+    height:8px;
+    background-color:#F5F5F5;
+}
+/*定义滚动条轨道
+ 内阴影+圆角*/
+::-webkit-scrollbar-track
+{
+    -webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius:10px;
+    background-color:#F5F5F5;
+}
+/*定义滑块
+ 内阴影+圆角*/
+::-webkit-scrollbar-thumb
+{
+    border-radius:10px;
+    -webkit-box-shadow:inset 0 0 6px rgba(0,0,0,.3);
+    background-color:#555;
+}
+
+/*choice頁面*/
+.content .wrap .chitem{
+    display: flex;
+    flex-flow: column;
+    position:relative;
+    min-height: 0%;
+    height: 80vh;
+    width: 50%;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    text-align: center;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    overflow:hidden;
+    transition: .5s;
+}
+.content .wrap .chitem img{
+    width: 20vh;
+    height: 20vh;
+    max-height: 17vw;
+    max-width: 17vw;
+    border: 3px solid rgba(152, 152, 152, 0.13);
+    border-radius: 100% 100% 100% 100%;
+    vertical-align: middle;
+    align-self: center;
+}
+.content .wrap .chitem h2{
+    border-bottom: 1px solid black;
+    font-size: 32px;
+    padding-bottom: .3em; 
+    margin-bottom: 10px;
+    font-weight: 900;
+    transition: all .5s
+}
+.content .wrap .chitem p{
+    line-height: 1.6;
+    transition: .5s;
+}
+.content .wrap .chitem .txt{
+    padding: 20px;
+    height: 60%;
+    
+}
+.content .wrap .chitem .txt ul li{
+    margin-top: 0vh;
+    text-align: left;
+    font-size: 14px;
+}
+
+
+
+
+.choice{
+    display: flex;
+    justify-content: space-around;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+}
+.chtxt{
+    display: flex;
+    justify-content: center;
+    width: 50%;
+    height: 100%;
+}
+.chtxt h1{
+    text-align: center;
+    font-size: 24px;
+}
+.choice ul{
+
+    height: 100%;
+}
+.content .wrap .chitem  input[type = "button"]{
+    font-family: Microsoft JhengHei;
+    width: 5vw;
+    height: 5vw;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 60px;
+    max-height: 60px;
+    font-size: calc(var(--ah) / 35);
+    position: relative;
+    margin: 40px;
+    bottom: -10px;
+    background: rgba(0, 0, 0, 0.58);
+    border: 3px solid rgba(255, 255, 255, 0);
+    color: #ffffff;
+    transition: .5s;
+    
+}
+.content .wrap .chitem input[type = "button"]:hover{
+    background-color: rgb(46, 46, 46);    
+}
+.cbut{
+    width: 100%;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+
+}
+/* backend*/
+
+
+.back-inner {
+    min-width: 300px;
+    min-height: 400px;
+	width: 30vw;
+    height: 37vw;
+    border-radius: 10px;
+    box-shadow: 10px 10px 20px 10px rgba(0, 0, 0, 0.2);
+    background-color: white;
+    margin: 50px 0 0 0;
+}
+.back-inner form{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.back-inner form p{
+	margin: 2.5% 0 2.5% 25%;
+}
+.back-inner form p a{
+    font-size:16px;
+    text-shadow: 2px 2px 2px #ebebeb;
+}
+.back-inner h4{
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 10px 10px 0 0 ;
+    color:#e0e0e0;
+	background: #263e62; 
+}
+
+
+.back-inner form [type="datetime-local"] {
+  background:#fff url(https://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/calendar_2.png)  97% 50% no-repeat ;
+    width: 75%;
+}
+.back-inner form [type="datetime-local"]::-webkit-inner-spin-button,[type="datetime-local"]::-webkit-clear-button {
+  display: none;
+}
+.back-inner form [type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+.back-inner form [type="datetime-local"]::-webkit-clear-button{}
+.back-inner form input,.back-inner form select,.back-inner form textarea{
+    width:50%;
+    font-size:16px;
+    border-radius: 5px;
+    border: 0px solid white;
+    box-shadow: 3px 3px 5px 5px #ebebeb;
+    background: rgba(255, 255, 255, 0);
+}
+
+.back-inner form input:focus,.back-inner form select:focus,.back-inner form textarea:focus{
+    border: none;
+}
+
+.back-inner form select{
+   background: rgba(255, 255, 255, 0);
+}
+
+.back-inner form textarea{
+ 
+    width: 15vw;     
+    height: 15vh;
+}
+
+.back-inner form [type="submit"]{
+    align-self: center;  
+    margin-top: 2.5%;
+    height: 5vh;
+}
+.back-inner form [type="submit"]:hover{
+    background-color: rgba(124, 124, 124, 0.12);
+}
+.back-inner form input:focus,.back-inner form select:focus,.back-inner form textarea:focus{
+    outline: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

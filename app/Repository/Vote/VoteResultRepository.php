@@ -42,13 +42,13 @@ class VoteResultRepository implements VoteResultRepositoryContract
         if(!ElectionPosition::isExist(['UID' => $data['ElectionPosition']], true))
             throw new RelatedObjectNotFoundException('ElectionPosition object not found!');
 
-        if(Candidate::isExist(['Candidate' => $data['Candidate']], true))
-        {
-            // Check Candidate ElectionPosition is the same as data
-            $CandidateEntity = Candidate::find($data['Candidate']);
-            $data['ElectionPosition'] = $CandidateEntity->ElectionPositionEntity->UID;
-        } else if($data['Candidate'] != 'broken')
-            throw new RelatedObjectNotFoundException('Candidate object not found!');
+        // if(Candidate::isExist(['Candidate' => $data['Candidate']], true))
+        // {
+        //     // Check Candidate ElectionPosition is the same as data
+        //     $CandidateEntity = Candidate::find($data['Candidate']);
+        //     $data['ElectionPosition'] = $CandidateEntity->CandidateElectionPositions[0]->ElectionPositionEntity->UID;
+        // } else if($data['Candidate'] != 'broken')
+        //     throw new RelatedObjectNotFoundException('Candidate object not found!');
 
 
         return VoteResult::create($data);
@@ -118,12 +118,12 @@ class VoteResultRepository implements VoteResultRepositoryContract
         if(!ElectionPosition::isExist(['UID' => $data['ElectionPosition']], true))
             throw new RelatedObjectNotFoundException('ElectionPosition object not found!');
 
-        if(Candidate::isExist(['Candidate' => $data['Candidate']], true))
-        {
-            $CandidateEntity = Candidate::find($data['Candidate']);
-            $data['ElectionPosition'] = $CandidateEntity->ElectionPositionEntity->UID;
-        } else if($data['Candidate'] != 'broken')
-            throw new RelatedObjectNotFoundException('Candidate ' . $data['Candidate'] . ' object not found!');
+        // if(Candidate::isExist(['Candidate' => $data['Candidate']], true))
+        // {
+        //     $CandidateEntity = Candidate::find($data['Candidate']);
+        //     $data['ElectionPosition'] = $CandidateEntity->ElectionPositionEntity->UID;
+        // } else if($data['Candidate'] != 'broken')
+        //     throw new RelatedObjectNotFoundException('Candidate ' . $data['Candidate'] . ' object not found!');
 
         // Get Entity and update
         $result = VoteResult::where('ElectionPosition', $data['ElectionPosition'])

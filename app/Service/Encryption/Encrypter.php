@@ -97,9 +97,10 @@ class Encrypter implements EncrypterContract
         );
 
         if ($decrypted === false) {
+            dd($payload);
             throw new DecryptException('Could not decrypt the data.');
         }
-
+    
         return $unserialize ? unserialize($decrypted) : $decrypted;
     }
 

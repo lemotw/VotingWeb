@@ -31,7 +31,7 @@ class Election extends Migration
             $table->string('Name', 32);
             $table->string('Unit', 32)->nullable();
             $table->string('QualifyRegex', 128);
-            $table->text('RequireDocument');
+            $table->text('RequireDocument')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -49,25 +49,14 @@ class Election extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('CandidateRegister', function (Blueprint $table) {
-            $table->Increments('id');
-            $table->string('Name', 32);
-            $table->string('account', 128);
-            $table->string('password', 256);
-            $table->integer('ElectionPosition');
-            $table->string('token', 128);
-            //relation to ElectionPosition
-            $table->timestamps();
-            $table->softDeletes();
-        });
-
         Schema::create('CandidateElectionPosition', function (Blueprint $table) {
             $table->Increments('id');
             $table->string('Candidate', 64);
-            $table->Increments('ElectionPosition');
-            $table->string('path', 128);
-            $table->boolean('CandidateSet');
-            //path to local file
+            $table->Integer('ElectionPosition');
+            $table->string('path', 256);
+            $table->string('exp', 768);
+            $table->boolean('CandidateSet')->default(false);
+            // path to local file
             $table->timestamps();
             $table->softDeletes();
         });
@@ -75,6 +64,7 @@ class Election extends Migration
         Schema::create('Candidate', function (Blueprint $table) {
             $table->string('Candidate', 64);
             $table->string('Name', 32);
+            $table->string('image', 256)->nullable();
             $table->string('account', 128);
             $table->string('password', 256);
             $table->timestamps();

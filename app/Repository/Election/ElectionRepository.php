@@ -49,6 +49,42 @@ class ElectionRepository implements ElectionRepositoryContract
     }
 
     /**
+     * Get election continue.
+     * 
+     * @param Carbon $time
+     * @return ICollection
+     */
+    public function ElectionHold($time)
+    {
+        return Election::where('StartTime', '<=', $time)
+                       ->where('EndTime', '>=', $time)->get();
+    }
+
+    /**
+     * Get Registering election.
+     * 
+     * @param Carbon $time
+     * @retun ICollection
+     */
+    public function RegisterHold($time)
+    {
+        return Election::where('RegisterStart', '<=', $time)
+                       ->where('RegisterEnd', '>=', $time)->get();
+    }
+
+    /**
+     * Get Voting election.
+     * 
+     * @param Carbon $time
+     * @return ICollection
+     */
+    public function VoteHold($time)
+    {
+        return Election::where('VoteStart', '<=', $time)
+                       ->where('VoteEnd', '>=', $time)->get();
+    }
+
+    /**
      * Create Election.
      * 
      * @param array $data
@@ -68,7 +104,7 @@ class ElectionRepository implements ElectionRepositoryContract
         ]);
 
         if($validator->fails())
-            throw new FormatNotMatchException('Election create param format not match!');
+            throw new RuntimeException('資料格式問題');
 
         return Election::create($data);
     }
@@ -94,12 +130,12 @@ class ElectionRepository implements ElectionRepositoryContract
         ]);
 
         if($validator->fails())
-            throw new FormatNotMatchException('Election update param format not match!');
+            throw new RuntimeException('資料格式問題!');
 
         // Get entity and update
         $entity = Election::find($data['id']);
         if(!$entity->update($data))
-            throw new RuntimeException('Election Eloquent update failed.');
+            throw new RuntimeException('更新發生問題');
 
         return $entity;
     }

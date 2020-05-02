@@ -25,12 +25,12 @@ class PositionRepository implements PositionRepositoryContract
     /**
      * Get Position.
      * 
-     * @param string $Uid
+     * @param integer $id
      * @return Position
      */
-    public function get($Uid)
+    public function get($id)
     {
-        return Position::find($Uid);
+        return Position::find($id);
     }
 
     /**
@@ -60,11 +60,12 @@ class PositionRepository implements PositionRepositoryContract
         $validator = Validator::make($data, [
             'Name' => 'required|string|max:32',
             'Unit' => 'nullable|string|max:32',
-            'RequireDocument' => 'required|string'
+            'QualifyRegex' => 'required|string|max:128',
+            'RequireDocument' => 'nullable|string'
         ]);
 
         if($validator->fails())
-            throw new FormatNotMatchException('Position create param format not match!');
+            throw new RuntimeException('資料格式問題');
 
         return Position::create($data);
     }
@@ -75,23 +76,24 @@ class PositionRepository implements PositionRepositoryContract
      * @param array $data
      * @return Position
      */
-    public function update(Position $position)
+    public function update($data)
     {
         //Check data valid or not.
         $validator = Validator::make($data, [
             'id' => 'required|integer',
             'Name' => 'string|max:32',
             'Unit' => 'nullable|string|max:32',
-            'RequireDocument' => 'string'
+            'QualifyRegex' => 'required|string|max:128',
+            'RequireDocument' => 'nullable|string'
         ]);
 
         if($validator->fails())
-            throw new FormatNotMatchException('Position update param format not match!');
+            throw new RuntimeException('資料格式問題');
 
         // Get Entity and update
         $entity = Position::find($data['id']);
-        if($entity->update($data))
-            throw new RuntimeException('Position Eloquent update problem!');
+        if(!$entity->update($data))
+            throw new RuntimeException('更新發生問題');
 
         return $entity;
     }

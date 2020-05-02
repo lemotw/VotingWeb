@@ -4,6 +4,7 @@ namespace App\Repository\Election;
 
 use Illuminate\Support\Facades\Validator;
 
+use RuntimeException;
 use App\Exceptions\FormatNotMatchException;
 use App\Exceptions\RelatedObjectNotFoundException;
 
@@ -66,13 +67,14 @@ class ElectionPositionRepository implements ElectionPositionRepositoryContract
         ]);
 
         if($validator->fails())
-            throw new FormatNotMatchException('ElectionPosition create param format not match.');
+            throw new RuntimeException('資料格式問題');
 
         //Check Position and Election is exist or not.
         if(Election::find($data['Election']) == NULL || Position::find($data['Position']) == NULL)
-            throw new RelatedObjectNotFoundException('Election Position object not found!');
+            throw new RuntimeException('職位找尋不道');
 
         $data['UID'] = hash('sha256', strval(time()).$data['Name'].'Position');
+        $data['ElectionType'] = 1;
 
         return ElectionPosition::create($data);
     }
@@ -93,10 +95,10 @@ class ElectionPositionRepository implements ElectionPositionRepositoryContract
         ]);
 
         if($validator->fails())
-            throw new FormatNotMatchException('ElectionPosition update param format not match.');
+            throw new RuntimeException('資料格式問題');
 
         if(!isset($data['UID']) && !isset($data['id']))
-            throw new FormatNotMatchException('ElectionPosition primary key not set.');
+            throw new RuntimeException('職位未設定好');
 
         // Get Entity and update
         if(isset($data['UID']))
@@ -106,7 +108,7 @@ class ElectionPositionRepository implements ElectionPositionRepositoryContract
             $entity = ElectionPosition::find($data['id']);
 
         if(!$entity->update($data))
-            throw new RuntimeException('ElectionPosition Eloquent update problem!');
+            throw new RuntimeException('更新發生問題');
 
         return $entity;
     }

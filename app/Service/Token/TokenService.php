@@ -54,8 +54,8 @@ class TokenService implements TokenServiceContract
      */
     public function getTableKey(User $user)
     {
-        //User or election is NULL
-        if($election == NULL || $user == NULL)
+        //User is NULL
+        if($user == NULL)
             return NULL;
 
         // Check Table key exist. if not generate new ont.

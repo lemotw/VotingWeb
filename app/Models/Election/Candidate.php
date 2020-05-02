@@ -15,8 +15,14 @@ class Candidate extends Model
     protected $primaryKey = 'Candidate';
     protected $table = 'Candidate';
     protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
+    protected $fillable = [ 'Candidate', 'Name', 'image', 'account', 'password' ];
+    protected $hidden = [ 'password' ];
+    protected $appends = ['imageURL'];
 
-    protected $fillable = [ 'Candidate', 'Name', 'account', 'password' ];
+    public function image_path()
+    {
+        return '/storage/image/Candidate/'.$this->Candidate.'/'.$this->image;
+    }
 
     public function ElectionPositions()
     {
@@ -26,5 +32,10 @@ class Candidate extends Model
             'Candidate',
             'ElectionPosition'
         );
+    }
+
+    public function CandidateElectionPositions()
+    {
+        return $this->hasMany('App\Models\Election\CandidateElectionPosition', 'Candidate', 'Candidate');
     }
 }

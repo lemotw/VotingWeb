@@ -32,11 +32,10 @@ interface ElectionService
     /**
      * Add ElectionPosition to Election.
      * 
-     * @param int $ElectionId
      * @param array $data
      * @return ElectionPosition
      */
-    public function ElectionPositionAdd($ElectionId, $data);
+    public function ElectionPositionAdd($data);
 
     /**
      * Modify ElectionPosition infomation.
