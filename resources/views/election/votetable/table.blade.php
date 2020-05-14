@@ -63,6 +63,12 @@
         </div>
     </div>
 
+    <div class="timeout_fade">
+        <div id="timeout_message">
+            操過投票時間，請到服務台回報
+        </div>
+    </div>
+
     <div class="faild_fade">
         <div id="faild_message">
         </div>

@@ -20,16 +20,27 @@
                         <td>{{ $candidateElectionPosition->CandidateEntity->Name }}</td>
                         <td>{{ $candidateElectionPosition->CandidateEntity->account}}</td>
                         <td>
-                            @if($candidateElectionPosition->CandidateSet)
-                                <label style="color:green">核可</label>
-                            @else
-                                <label style="color:gray">審核中</label>
-                            @endif
+                            @switch($candidateElectionPosition->CandidateStatus)
+                                @case(App\Contracts\Utility\CandidateStatus::uncheck)
+                                    <label style="color:gray">尚未核可</label>
+                                    @break
+                                @case(App\Contracts\Utility\CandidateStatus::check)
+                                    <label style="color:green">核可</label>
+                                    @break
+                                @case(App\Contracts\Utility\CandidateStatus::remedy_file)
+                                    <label style="color:#EFBB24">補繳文件</label>
+                                    @break
+                                @default
+                                    <label style="color:gray">尚未核可</label>
+                                    @break
+                            @endswitch
+ 
                         </td>
-                        <td><a href="https://www.google.com">檔案</a></td>
+                        <td><a href="{{ route('election.candidate.download', ['id'=>$candidateElectionPosition->id]) }}">檔案</a></td>
                         <td>
-                            <a href="{{ route('election.candidate.check', ['id'=>$candidateElectionPosition->id]) }}">核可</a>
-                            <a href="{{ route('election.candidate.uncheck', ['id'=>$candidateElectionPosition->id]) }}">移除核可</a>
+                            <a href="{{ route('election.candidate.status_change.post', ['id'=>$candidateElectionPosition->id, 'status' => App\Contracts\Utility\CandidateStatus::check]) }}">核可</a>
+                            <a href="{{ route('election.candidate.status_change.post', ['id'=>$candidateElectionPosition->id, 'status' => App\Contracts\Utility\CandidateStatus::remedy_file]) }}">補件</a>
+                            <a href="{{ route('election.candidate.status_change.post', ['id'=>$candidateElectionPosition->id, 'status' => App\Contracts\Utility\CandidateStatus::uncheck]) }}">尚未核可</a>
                         </td>
                     </tr>
                     @endforeach

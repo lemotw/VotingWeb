@@ -14,6 +14,42 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/res', 'ElectionController@ElectionPositionResult_Page')->name('election.position.result.page');
+Route::get('/es', 'ElectionController@ElectionResult_Page');
+Route::get('/ele/res', 'ElectionController@ElectionResultIndex_Page')->name('election.result.index.page');
+
+use App\Models\Election\ElectionPosition;
+use App\Service\Vote\VoteService;
+use App\Service\Election\ElectionService;
+use App\Models\Vote\VoteResult;
+use App\Models\Election\CandidateElectionPosition;
+
+Route::get('test', function() {
+
+    $cand = CandidateElectionPosition::find(12);
+    dd($cand->CandidateEntity->image_path());
+    dd($cand->CandidateImage);
+
+    $es = new ElectionService();
+
+    return $es->CandidateElectionPositionDownload(9);
+    dd(CandidateElectionPosition::find(1)->created_at->format('Y-m-d_H-i-s'));
+
+    dd(App\Contracts\Utility\CandidateStatus::remedy_file);
+    dd(CandidateElectionPosition::find(9)->CandidateSet);
+    $vs = new VoteService();
+
+    $token = 'kkkkkkkk123qqq';
+    dd($vs->GetVotes($token));
+
+    return view('election.result.election_position');
+    // dd($vs->CalculateVoteResult(8));
+    $e = ElectionPosition::find(8);
+    $vs_list = VoteResult::where('ElectionPosition', $e->UID)->get();
+    dd($vs_list[0]);
+
+});
+
 Route::Group(['prefix' => 'admin'], function() {
 
     Route::get('/', 'ElectionController@welcome')->name('admin.welcome.page');
@@ -43,8 +79,8 @@ Route::Group(['prefix' => 'admin'], function() {
 
         Route::Group(['prefix' => 'candidate'], function() {
             Route::get('check', 'ElectionController@CandidateCheckIndex_Page')->name('election.candidate.check.page');
-            Route::get('check_candidate', 'ElectionController@Candidate_Check')->name('election.candidate.check');
-            Route::get('uncheck_candidate', 'ElectionController@Candidate_Uncheck')->name('election.candidate.uncheck');
+            Route::get('change_status', 'ElectionController@CandidateStatus_Change')->name('election.candidate.status_change.post');
+            Route::get('download', 'ElectionController@CandidateFile_Download')->name('election.candidate.download');
         });
 
         Route::Group(['prefix' => 'position'], function() {
@@ -112,5 +148,8 @@ Route::Group(['prefix' => 'candidate', 'middleware' => ['candidate_auth']], func
         Route::get('modify', 'CandidateController@CandidateElectionPositionModify_Page')->name('candidate.election_position.modify.page');
         Route::post('modify', 'CandidateController@CandidateElectionPositionModify_Post')->name('candidate.election_position.modify.post');
         // Return to index
+
+        Route::get('file_upload', 'CandidateController@CandidateElectionPositionFileUpload_Page')->name('candidate.election_position.file_upload.page');
+        Route::post('file_upload', 'CandidateController@CandidateElectionPositionFileUpload_Post')->name('candidate.election_position.file_upload.post');
     });
 });

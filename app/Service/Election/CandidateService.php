@@ -13,6 +13,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 
 use App\Models\Election\Candidate;
+use App\Models\Election\ElectionPosition;
 use App\Repository\Election\CandidateRepository;
 use App\Repository\Election\CandidateElectionPositionRepository;
 use App\Repository\Election\ElectionRepository;
@@ -150,23 +151,35 @@ class CandidateService implements CandidateServiceContract
      * Add CandidateElectionPosition.
      * 
      * @param array $data
-     * @param UploadedFile $file
      * @return CandidateElectionPosition
      */
-    public function CandidateElectionPositionAdd($data, UploadedFile $file=NULL)
+    public function CandidateElectionPositionAdd($data)
     {
         $data['Candidate'] = $this->guard()->candidate()->Candidate;
 
-        // Deal with File upload
-        // Exam the file type
-        if($file == NULL)
-            throw new RuntimeException('檔案尚未上傳.');
-            
-        if(!in_array($file->extension(), ['zip', '7z', 'tar.gz', 'rar']))
-            throw new RuntimeException('檔案格式有問題.');
+        $positions = $this->guard()->candidate()->CandidateElectionPositions;
+        $election_position = ElectionPosition::find($data['ElectionPosition']);
 
-        $data['path'] = $this->CandidateFileUpload($file, $this->guard()->candidate(), $data['ElectionPosition']);
+        foreach($positions as $p) {
+            if($p->ElectionPositionEntity->Election == $election_position->Election)
+                throw new RuntimeException('同個選舉重複登記');
+        }
+
+        if(is_array($data['exp'])) {
+            $exp_str = '';
+            foreach ($data['exp'] as $exp) {
+                if($exp == '')
+                    continue;
+                else
+                    $exp_str .= $exp.'<br/>';
+            }
+        } else {
+            $exp_str = '';
+        }
+        $data['exp'] = $exp_str;
+
         $candidateElectionPosition = $this->candidateElectionPositionRepository->create($data);
+
         // Reload Candidate's CandidateElectionPositions
         $this->guard()->candidate()->load('CandidateElectionPositions');
 
@@ -179,13 +192,23 @@ class CandidateService implements CandidateServiceContract
      * @param array $data
      * @return CandidateElectionPosition
      */
-    public function CandidateElectionPositionModify($data, UploadedFile $file=null)
+    public function CandidateElectionPositionModify($data)
     {
         $guard = $this->guard();
         $data['Candidate'] = $guard->candidate()->Candidate;
 
-        if($file && in_array($file->extension(), ['zip', '7z', 'tar.gz', 'rar']))
-            $data['path'] = $this->CandidateFileUpload($file, $this->guard()->candidate(), $data['ElectionPosition']);
+        if(is_array($data['exp'])) {
+            $exp_str = '';
+            foreach ($data['exp'] as $exp) {
+                if($exp == '')
+                    continue;
+                else
+                    $exp_str .= $exp.'<br/>';
+            }
+        } else {
+            $exp_str = '';
+        }
+        $data['exp'] = $exp_str;
 
         $candidateElectionPosition = $this->candidateElectionPositionRepository->update($data);
         // Reload Candidate's CandidateElectionPositions
@@ -216,6 +239,9 @@ class CandidateService implements CandidateServiceContract
     {
         if(!$candidateElectionPosition)
             throw new RuntimeException('找不道登記資訊');
+
+        if($candidateElectionPosition->path == NULL)
+            throw new RuntimeException('檔案未上傳');
 
         $downloadName = $candidateElectionPosition->Name. '.' . pathinfo($candidateElectionPosition->FilePath)['extension'];
 
@@ -286,18 +312,19 @@ class CandidateService implements CandidateServiceContract
      * @param Candidate $candidate
      * @return UploadedFile
      */
-    public function CandidateFileUpload(UploadedFile $file, Candidate $candidate, $positionId)
+    public function CandidateFileUpload(UploadedFile $file, $candidate_ep)
     {
-        if(!$candidate)
+        if($candidate_ep == NULL)
             throw new RuntimeException('尚未登入');
 
-        $election_position = $this->electionPositionRepository->get($positionId);
-        if(!$election_position)
-            throw new RelatedObjectNotFoundException('該職位找不到');
-        
-        $Path_To_Store = 'Candidate/'.$candidate->Candidate.'/'.strval($positionId);
+        $Path_To_Store = 'Candidate/'.$candidate_ep->CandidateEntity->Candidate.'/'.strval($candidate_ep->ElectionPosition);
         $FileName = sha1(time()).'.'.$file->clientExtension();
         $file->storeAs($Path_To_Store, $FileName);
+        
+        //not Repo!!
+        $candidate_ep->file_updated = Carbon::now();
+        $candidate_ep->path = $FileName;
+        $candidate_ep->save();
 
         return $FileName;
     }

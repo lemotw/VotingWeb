@@ -65,7 +65,7 @@ class Election extends Migration
             $table->string('Candidate', 64);
             $table->string('Name', 32);
             $table->string('image', 256)->nullable();
-            $table->string('account', 128);
+            $table->string('account', 128)->unique();
             $table->string('password', 256);
             $table->timestamps();
             $table->softDeletes();

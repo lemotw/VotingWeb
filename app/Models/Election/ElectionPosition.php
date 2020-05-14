@@ -32,4 +32,12 @@ class ElectionPosition extends Model
     {
         return $this->hasMany('App\Models\Election\CandidateElectionPosition', 'ElectionPosition', 'id');
     }
+
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($ep) {
+            $ep->CandidateElectionPosition()->delete();
+        });
+    }
 }

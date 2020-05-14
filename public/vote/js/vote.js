@@ -255,6 +255,27 @@ let GetVotes = function() {
   })
 }
 
+let clearLocalStorage = function() {
+  localStorage.setItem('votes', '');
+  localStorage.setItem('VoteCount', '');
+  localStorage.setItem('token', '');
+}
+
+let timeout_faild = function() {
+
+  console.log('vote tiemout');
+  $('.timeout_fade').css('display', 'flex');
+  $('.timeout_fade').css('z-index', '2');
+
+  window.setTimeout(function() {
+    $('.timeout_fade').css('z-index', '1');
+    $('.timeout_fade').css('display', 'none');
+  }, 4000);
+
+  clearLocalStorage();
+  reshowTokenInput()
+}
+
 let renderNextVote = function() {
   var ajaxData = JSON.parse(localStorage.getItem('votes'))
 
@@ -268,6 +289,7 @@ let renderNextVote = function() {
   if(count == -1)
   {
     reshowTokenInput()
+    clearLocalStorage()
     finish()
     return
   } else if(count >= ElectionPositionList.length) {
@@ -277,9 +299,11 @@ let renderNextVote = function() {
     finish()
     return
   }
-  
   renderElectionPosition(ElectionPositionList[count])
 
+  timeout_var = window.setTimeout(timeout_faild, 30000)
+  console.log(timeout_var);
+  localStorage.setItem('timeout', timeout_var)
   // Increase VoteCount
   localStorage.setItem('VoteCount', ++count)
 }
@@ -320,6 +344,9 @@ $(document).ready(function () {
         var ElectionPositionUID = $(this).attr('ElectionPositionUID')
         var token = localStorage.getItem('token')
         sentVote(ElectionPositionUID, CandidateUID, token, vote)
+
+        timeout_var = localStorage.getItem('timeout')
+        clearTimeout(timeout_var)
 
         // Close dialog
         $(this).dialog("close");

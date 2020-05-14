@@ -18,4 +18,12 @@ class Election extends Model
     {
         return $this->hasMany('App\Models\Election\ElectionPosition', 'Election', 'id');
     }
+
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($e) {
+            $e->ElectionPositionEntity()->delete();
+        });
+    }
 }

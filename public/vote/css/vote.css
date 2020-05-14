@@ -251,6 +251,34 @@ body{
     font-size: 4em;
     color: white;
 }
+
+.timeout_fade{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(255, 255, 255);
+    z-index: 1;
+}
+#timeout_message{
+    width: 600px;
+    height: 200px;
+    background-color: #D75455;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 4em;
+    color: white;
+}
+
 .faild_fade{
     width: 100vw;
     height: 100vh;
@@ -704,6 +732,7 @@ table的CSS
     text-shadow: 2px 2px 2px #ebebeb;
 }
 .back-inner h4{
+    margin: 0;
     padding: 5px;
     font-size: 16px;
     border-radius: 10px 10px 0 0 ;

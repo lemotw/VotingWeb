@@ -134,8 +134,11 @@ class VoteService implements VoteServiceContract
                 // Get Candidates by ElectionPosition id and CandidateSet flag
                 $candidates = $this->candidateElectionPositionRepository->getBy([
                     'ElectionPosition' => $position->id,
-                    'CandidateSet' => true
+                    'CandidateStatus' => \App\Contracts\Utility\CandidateStatus::check
                 ]);
+
+                if($candidates->count() == 0)
+                    continue;
 
                 // Set election type
                 if($candidates->count() > 1)
@@ -222,12 +225,15 @@ class VoteService implements VoteServiceContract
     /**
      * Vote Result Calculate.
      * 
-     * @param string $electionPositionUID
+     * @param integer $electionPositionID
      * @return VoteResult
      */
     public function CalculateVoteResult($electionPositionID)
     {
         $electionPosition = $this->electionPositionRepository->getBy(['id' => $electionPositionID])->first();
+
+        if($electionPosition == NULL)
+            return NULL;
 
         if($electionPosition->CandidateElectionPosition->count() > 1)
         {
@@ -303,7 +309,7 @@ class VoteService implements VoteServiceContract
             throw new RuntimeException('YN election candidate count error!!');
 
         // Update candidate set to Candidate UID
-        $candidates = $candidates->fist()->Candidate;
+        $candidates = $candidates[0]->Candidate;
 
         // Initial vote result set
         $voteresult = [
@@ -317,7 +323,7 @@ class VoteService implements VoteServiceContract
         $VoteRecordSet = $this->voteRecordRepository->getByElectionPosition($electionPosition->UID);
         foreach($VoteRecordSet as $voterecord)
         {
-            if($voterecord->Candidate != $candidates)
+            if($voterecord->broken)
             {
                 $voteresult['broken']++;
                 continue;

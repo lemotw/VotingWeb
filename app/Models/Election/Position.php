@@ -43,4 +43,17 @@ class Position extends Model
 
         return true;
     }
+
+    public function ElectionPosition()
+    {
+        return $this->hasMany('App\Models\Election\ElectionPosition', 'Position', 'id');
+    }
+
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($p) {
+            $p->ElectionPosition()->delete();
+        });
+    }
 }

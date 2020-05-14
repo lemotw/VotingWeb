@@ -8,6 +8,7 @@ use App\Exceptions\FormatNotMatchException;
 use App\Exceptions\RelatedObjectNotFoundException;
 
 use App\Contracts\Utility\VoteType;
+use App\Contracts\Utility\YesNoVote;
 use App\Models\Vote\VoteRecord;
 use App\Models\Election\Candidate;
 use App\Models\Election\ElectionPosition;
@@ -52,13 +53,18 @@ class VoteRecordRepository implements VoteRecordRepositoryContract
         if($ep == NULL)
             throw new RelatedObjectNotFoundException('Election Position object not found!');
 
-        if($ep->ElectionType == VoteType::MULTIPLE_CHOICE)
-            $datasets['YN_Vote'] = 0;
+        $candidates = $ep->CandidateElectionPosition;
 
-        if($ep->ElectionType == VoteType::YN_CHOICE)
-        {
+        if($candidates->count() >= 1) {
+            if($candidates->count() > 1)
+                $ep->ElectionType = VoteType::MULTIPLE_CHOICE;
+            else
+                $ep->ElectionType = VoteType::YN_CHOICE;
+        }
+
+        if($ep->ElectionType == VoteType::YN_CHOICE) {
             // Check if vote is out of Y or N
-            if( !($datasets['YN_Vote'] == 1 || $datasets['YN_Vote'] == 2) )
+            if( $datasets['YN_Vote'] != YesNoVote::yes && $datasets['YN_Vote'] != YesNoVote::no)
                 $datasets['broken'] = true;
         }
 
@@ -66,6 +72,7 @@ class VoteRecordRepository implements VoteRecordRepositoryContract
         if(!Candidate::isExist(['Candidate' => $candidate], true))
             throw new RelatedObjectNotFoundException('Candidate object not found!');
 
+        $ep->save();
         return VoteRecord::create($datasets);
     }
 

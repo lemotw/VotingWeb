@@ -4,12 +4,14 @@ namespace App\Service\Election;
 
 use Illuminate\Support\Facades\Validator;
 
+use Storage;
 use RuntimeException;
 use App\Exceptions\RelatedObjectNotFoundException;
 
 use App\Models\Election\Election;
 use App\Models\Election\Position;
 use App\Models\Election\ElectionPosition;
+use App\Models\Election\CandidateElectionPosition;
 use App\Repository\Election\PositionRepository;
 use App\Repository\Election\ElectionRepository;
 use App\Repository\Election\ElectionPositionRepository;
@@ -256,5 +258,23 @@ class ElectionService implements ElectionServiceContract
     public function CandidateElectionPositionGet($id)
     {
         return $this->candidateElectionPositionRepository->get($id);
+    }
+
+    /**
+     * Provide for administrator to download candidate file
+     */
+    public function CandidateElectionPositionDownload($id) {
+
+        $candidateElectionPosition = CandidateElectionPosition::find($id);
+
+        if(!$candidateElectionPosition)
+            throw new RuntimeException('找不道登記資訊');
+
+        if($candidateElectionPosition->path == NULL)
+            throw new RuntimeException('檔案尚未上傳');
+
+        $downloadName = $candidateElectionPosition->file_updated->format('Y-m-d_').$candidateElectionPosition->Name. '.' . pathinfo($candidateElectionPosition->FilePath)['extension'];
+
+        return Storage::download($candidateElectionPosition->FilePath, $downloadName);
     }
 }

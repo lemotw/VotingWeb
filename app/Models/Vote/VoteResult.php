@@ -19,7 +19,7 @@ class VoteResult extends Model
         return $this->belongsTo('App\Models\Election\ElectionPosition', 'ElectionPosition', 'UID');
     }
 
-    public function Candidate()
+    public function CandidateEntity()
     {
         return $this->belongsTo('App\Models\Election\Candidate', 'Candidate', 'Candidate');
     }

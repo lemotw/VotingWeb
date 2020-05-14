@@ -14,10 +14,10 @@ class CandidateElectionPosition extends Model
     public $incrementing = true;
     protected $primaryKey = 'id';
     protected $table = 'CandidateElectionPosition';
-    protected $dates = [ 'created_at', 'updated_at', 'deleted_at' ];
+    protected $dates = [ 'file_updated', 'created_at', 'updated_at', 'deleted_at' ];
 
     protected $visible = [ 'Candidate', 'name', 'path', 'exp', 'CandidateImage' ];
-    protected $fillable = [ 'Candidate', 'ElectionPosition', 'path', 'exp', 'CandidateSet' ];
+    protected $fillable = [ 'Candidate', 'ElectionPosition', 'path', 'exp', 'fixed_flag', 'CandidateStatus' ];
     protected $appends = [ 'name','CandidateImage' ];
 
     public function getFilePathAttribute()
@@ -30,12 +30,12 @@ class CandidateElectionPosition extends Model
 
     public function getNameAttribute()
     {
-        return $this->CandidateEntity?$this->CandidateEntity->Name:NULL;
+        return ($this->CandidateEntity!=NULL)?$this->CandidateEntity->Name:NULL;
     }
 
     public function getCandidateImageAttribute()
     {
-        return $this->CandidateEntity?$this->CandidateEntity->imageURL:NULL;
+        return $this->CandidateEntity?$this->CandidateEntity->image_path():NULL;
     }
 
     public function ElectionPositionEntity()

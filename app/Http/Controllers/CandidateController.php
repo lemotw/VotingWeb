@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Session;
+use Carbon\Carbon;
+
+use Exception;
 use RuntimeException;
 
 use Illuminate\Http\Request;
@@ -107,7 +110,7 @@ class CandidateController extends Controller
                 'Name', 'account', 'password', 'ElectionPosition'
             ]));
         } catch(RuntimeException $e) {
-            return redirect()->back()->withErrors($e->getMessage());
+            return back()->withErrors('看來輸入資料不符合規格喔～');
         }
 
         return redirect()->route('candidate.login.page')->with('msg', '候選人註冊成功!');
@@ -203,8 +206,8 @@ class CandidateController extends Controller
     {
         try{
             $this->candidateService->CandidateElectionPositionAdd($request->only([
-                'ElectionPosition', 'path', 'exp'
-            ]), $request->file('file'));
+                'ElectionPosition', 'exp'
+            ]));
         } catch(RuntimeException $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
@@ -239,14 +242,52 @@ class CandidateController extends Controller
     {
         try{
             $this->candidateService->CandidateElectionPositionModify($request->only([
-                'id', 'ElectionPosition', 'path', 'exp']),
-                $request->file('file')
-            );
+                'id', 'ElectionPosition', 'exp'
+            ]));
         } catch(RuntimeException $e) {
             return redirect()->back()->withErrors($e->getMessage());
         }
 
         return redirect()->route('candidate.election_position.index.page')->with('msg', '登記職位資訊編輯成功!');
+    }
+
+    /**
+     * Provide candidate to upload file.
+     */
+    public function CandidateElectionPositionFileUpload_Page(Request $request) {
+
+        $candidate_ep = $this->candidateService->CandidateElectionPositionGet($request->input('id'));
+
+        $title = $candidate_ep->ElectionPositionEntity->Name.' 職位檔案上傳';
+        $subtitle = '檔案上傳';
+
+        return view('candidate.election_position.file_upload', compact('title', 'subtitle', 'candidate_ep'));
+    }
+
+    /**
+     * Deal with candidate file.
+     */
+    public function CandidateElectionPositionFileUpload_Post(Request $request) {
+
+        try{
+            $candidate_ep = $this->candidateService->CandidateElectionPositionGet($request->input('id'));
+
+            $election = $candidate_ep->ElectionPositionEntity->ElectionEntity;
+            $candidate = $candidate_ep->CandidateEntity;
+
+            $now = Carbon::now();
+            if($now > $election->RegisterEnd) {
+                if(!$candidate_ep->fixed_flag) {
+                    return back()->withErrors('已操過繳交時間');
+                }
+            }
+
+            $this->candidateService->CandidateFileUpload($request->file('file'), $candidate_ep);
+        } catch (Exception $e) {
+            return back()->withErrors('看來輸入資料不符合規格喔～');
+        }
+
+        return redirect()->route('candidate.election_position.index.page')->with('msg', '檔案上傳成功');
     }
 
     /**
@@ -285,12 +326,16 @@ class CandidateController extends Controller
      */
     public function CandidateElectionPosition_Download(Request $request)
     {
-        $election_position = $this->candidateService->CandidateElectionPositionGet($request->input('id'));
-        $candidate = $this->candidateService->Candidate();
+        try {
+            $election_position = $this->candidateService->CandidateElectionPositionGet($request->input('id'));
+            $candidate = $this->candidateService->Candidate();
 
-        if(!$election_position || $election_position->Candidate != $candidate->Candidate)
-            return redirect()->back()->withErrors(['您沒有權限訪問其他候選人資料!']);
+            if(!$election_position || $election_position->Candidate != $candidate->Candidate)
+                return redirect()->back()->withErrors(['您沒有權限訪問其他候選人資料!']);
 
-        return $this->candidateService->CandidateElectionPositionFileDownload($election_position);
+            return $this->candidateService->CandidateElectionPositionFileDownload($election_position);
+        } catch(Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
     }
 }

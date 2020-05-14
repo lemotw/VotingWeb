@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App;
 use Session;
+
+use Exception;
 use RuntimeException;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+use App\Service\Vote\VoteService;
 use App\Service\Election\ElectionService;
 use App\Service\Election\CandidateService;
 use App\Service\Formatter\GrowlMessenger;
@@ -24,6 +27,11 @@ class ElectionController extends Controller
     protected $electionService;
 
     /**
+     * Vote Service
+     */
+    protected $voteService;
+
+    /**
      * Create a new ElectionController.
      * 
      * @return void
@@ -31,6 +39,7 @@ class ElectionController extends Controller
     public function __construct()
     {
         $this->electionService = new ElectionService();
+        $this->voteService = new VoteService();
     }
 
 
@@ -339,12 +348,97 @@ class ElectionController extends Controller
             return redirect()->back()->withErrors($e->getMessage());
         }
 
-
-
-
-
         return response(200);
     }
+
+    /**
+     * List of election result.
+     * 
+     * @param Request $request
+     */
+    public function ElectionResultIndex_Page(Request $request) {
+        if(!$request->input('id'))
+            return response(404);
+
+        $ElectionId = $request->input('id');
+        $election = $this->electionService->ElectionGet($request->input('id'));
+        $title = $election->Name.' 結果頁面';
+        $positions = $election->ElectionPositionEntity;
+
+        return view('election.result.index', compact('title', 'positions', 'ElectionId'));
+    }
+
+    /**
+     * Get single Election Position Vote result.
+     * 
+     * @param Request $request
+     */
+    public function ElectionPositionResult_Page(Request $request) {
+
+        $election_position = $this->electionService->ElectionPositionGet($request->input('id'));
+
+        $vote_count = 263;
+        $title = $election_position->Name . ' 選舉結果';
+
+        $vote_result = $this->voteService->CalculateVoteResult($election_position->id);
+
+        $broken = 0;
+        $vote_sum = 0;
+        foreach($vote_result as $result) {
+            $vote_sum += $result->VoteCount;
+
+            if($result->Candidate == 'broken')
+                $broken = $result->VoteCount;
+        }
+
+        if($vote_result->count() > 1) {
+            return view('election.result.election_position', compact('title', 'vote_result', 'broken', 'vote_count', 'vote_sum', 'election_position'));
+        } else {
+            $vote_result = $vote_result[0];
+            return view('election.result.election_position_yn', compact('title', 'vote_result', 'vote_count'));
+        }
+    }
+
+    /**
+     * Get single Election Position Vote result.
+     * 
+     * @param Request $request
+     */
+    public function ElectionResult_Page(Request $request) {
+        if(!$request->input('id'))
+            return response(404);
+
+        $election = $this->electionService->ElectionGet($request->input('id'));
+        $title = $election->Name . ' 選舉結果';
+        $positions = $election->ElectionPositionEntity;
+
+        $vote_result_list = [];
+
+        foreach($positions as $position) {
+            $vote_count = 263;
+            $vote_result = $this->voteService->CalculateVoteResult($position->id);
+
+            $broken = 0;
+            $vote_sum = 0;
+            foreach($vote_result as $result) {
+                $vote_sum += $result->VoteCount;
+
+                if($result->Candidate == 'broken')
+                    $broken = $result->VoteCount;
+            }
+
+            array_push($vote_result_list, [
+                'vote_result' => $vote_result,
+                'vote_count' => $vote_count,
+                'vote_sum' => $vote_sum,
+                'broken' => $broken
+            ]);
+        }
+
+
+        return view('election.result.election', compact('title', 'vote_result_list'));
+    }
+
 
     /**
      * Manage Candidate about Election Position.
@@ -360,27 +454,22 @@ class ElectionController extends Controller
         return view('election.candidate.election_position.index', compact('title', 'election_position'));
     }
 
-    public function Candidate_Check(Request $request)
-    {
-        $election_position = $this->electionService->CandidateElectionPositionGet($request->input('id'));
-        if(!$election_position)
-            return redirect()->back()->withErrors(['找不到該候選人!']);
+    public function CandidateStatus_Change(Request $request) {
+        $id = $request->input('id');
+        $status = $request->input('status');
 
-        $election_position->CandidateSet = true;
-        $election_position->save();
+        $candidate_ep = $this->electionService->CandidateElectionPositionGet($id);
+        $candidate_ep->CandidateStatus = $status;
+        $candidate_ep->save();
 
-        return redirect()->route('election.candidate.check.page', ['id'=>$election_position->ElectionPosition])->with('msg', '您核可了 '.$election_position->Name.' 候選人!');
+        return back()->with('msg', '更改成功');
     }
 
-    public function Candidate_Uncheck(Request $request)
-    {
-        $election_position = $this->electionService->CandidateElectionPositionGet($request->input('id'));
-        if(!$election_position)
-            return redirect()->back()->withErrors(['找不到該候選人!']);
-
-        $election_position->CandidateSet = false;
-        $election_position->save();
-
-        return redirect()->route('election.candidate.check.page', ['id'=>$election_position->ElectionPosition])->with('msg', '您取消核可了 '.$election_position->Name.' 候選人!');
+    public function CandidateFile_Download(Request $request) {
+        try{
+            return $this->electionService->CandidateElectionPositionDownload($request->input('id'));
+        } catch (Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
     }
 }

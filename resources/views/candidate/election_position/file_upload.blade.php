@@ -66,34 +66,6 @@
         justify-content: center;
     }
 
-    #exp {
-        width: 80%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .exp-input-box {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .exp_box {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        margin: 10px;
-    }
-
-    #position {
-        width: 80%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
 </style>
 @stop
 
@@ -101,69 +73,20 @@
 @section('content')
 <div class="back-inner">
     <h4>{{ $subtitle }}</h4>
-        <form action="{{ isset($postURL)?$postURL:NULL }}" method="POST" id='form_main' enctype="multipart/form-data">
+        <form action="{{ route('candidate.election_position.file_upload.post') }}" method="POST" id='form_main' enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="id" value="{{ isset($position)?$position->id:NULL }}">
+            <input type="hidden" name="id" value="{{ $candidate_ep->id }}">
 
-            <div class="row" id="exp">
-                <label>經歷:</label> 
-
-                <div class="exp-input-box">
-
-                    @if(isset($position))
-                    @foreach(explode('<br/>', $position->exp) as $exp)
-
-                    @if($exp == '')
-                        @continue
-                    @endif
-
-                    <div class="exp_box">
-                        <input type="text" name="exp[]" value="{{$exp}}">
-                        <a class="btn" onclick="delete_exp_input(this)">X</a>
-                    </div>
-                    @endforeach
-                    @endif
-                    <a class="btn btn-default" onclick="append_exp_input(this)">新增</a>
-                </div>
+            <div class="row">
+                <label>上傳檔案:</label> 
+                <input type="file" name="file" id="file">
             </div>
 
-            <div class="row" id="position">
-                <label style="width:100%">職位:</label> 
-                <select name="ElectionPosition" id="Position" style="width:200px;margin:20px;">
-                    @foreach($positions as $eposition)
-                        <option value="{{ $eposition->id}}"
-                            @if (isset($position) && $position->ElectionPosition == $eposition->id)
-                                selected
-                            @endif
-                        >{{ $eposition->Name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            
             <div class="row" id="submit_center">
                 <input style="width:100px;" type="submit" value="送出">
             </div>
         </form>
     </div>
 </div>
-
-<script>
-
-    function append_exp_input(btn) {
-        var exp_input = `
-        <div class="exp_box">
-            <input type="text" name="exp[]"/>
-            <a class="btn" onclick="delete_exp_input(this)">X</a>
-        </div>
-        `;
-
-        $(btn).before(exp_input);
-    }
-
-    function delete_exp_input(btn) {
-        $($(btn).parent()).remove();
-    }
-
-</script>
 
 @endsection 

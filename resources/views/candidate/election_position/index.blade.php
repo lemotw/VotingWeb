@@ -25,14 +25,23 @@
                     <tr>
                         <td>{{ $position->ElectionPositionEntity->Name }}</td>
                         <td>
-                            @if($position->CandidateSet)
-                                <label style="color:green">核可</label>
-                            @else
-                                <label style="color:gray">審核中</label>
-                            @endif
+                            @switch($position->CandidateStatus)
+                                @case(App\Contracts\Utility\CandidateStatus::uncheck)
+                                    <label style="color:gray">尚未核可</label>
+                                    @break
+                                @case(App\Contracts\Utility\CandidateStatus::check)
+                                    <label style="color:green">核可</label>
+                                    @break
+                                @case(App\Contracts\Utility\CandidateStatus::remedy_file)
+                                    <label style="color:#EFBB24">補繳文件</label>
+                                    @break
+                            @endswitch
                         </td>
                         <td><a href="{{ route('candidate.election_position.view.page', ['id'=>$position->id]) }}">檢視</a></td>
-                        <td><a href="{{ route('candidate.election_position.modify.page', ['id'=>$position->id]) }}">編輯</a></td>
+                        <td>
+                            <a href="{{ route('candidate.election_position.modify.page', ['id'=>$position->id]) }}">編輯</a>
+                            <a href="{{ route('candidate.election_position.file_upload.page', ['id'=>$position->id]) }}">檔案上傳</a>
+                        </td>
                     </tr>
                     @endforeach
                 </table>
