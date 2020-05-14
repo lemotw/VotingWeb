@@ -53,7 +53,7 @@ class Election extends Migration
             $table->Increments('id');
             $table->string('Candidate', 64);
             $table->Integer('ElectionPosition');
-            $table->string('path', 256);
+            $table->string('path', 256)->nullable();
             $table->string('exp', 768);
             $table->boolean('CandidateSet')->default(false);
             // path to local file

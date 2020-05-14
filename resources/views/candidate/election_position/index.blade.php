@@ -22,6 +22,9 @@
                     </tr>
 
                     @foreach($candidate->CandidateElectionPositions as $position)
+                    @if($position->ElectionPositionEntity == NULL)
+                    @continue
+                    @endif
                     <tr>
                         <td>{{ $position->ElectionPositionEntity->Name }}</td>
                         <td>

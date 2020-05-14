@@ -16,6 +16,9 @@
                     </tr>
 
                     @foreach($election_position->CandidateElectionPosition as $candidateElectionPosition)
+                    @if($candidateElectionPosition->CandidateEntity == NULL)
+                    @continue
+                    @endif
                     <tr>
                         <td>{{ $candidateElectionPosition->CandidateEntity->Name }}</td>
                         <td>{{ $candidateElectionPosition->CandidateEntity->account}}</td>
