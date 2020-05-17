@@ -70,7 +70,7 @@
             <div class="row">
                 <label>名稱:</label> 
                 <input style="width:200px;" type="text" name="Name"
-                value="{{ isset($candidate)?$candidate->Name:NULL }}">
+                value="{{ isset($candidate)?$candidate->Name:NULL }}" autocomplete="off">
             </div>
 
             <div class="row">

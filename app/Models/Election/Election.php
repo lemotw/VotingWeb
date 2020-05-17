@@ -23,6 +23,9 @@ class Election extends Model
         parent::boot();
 
         static::deleting(function($e) {
+            foreach ($e->ElectionPositionEntity as $ep)
+                $ep->CandidateElectionPosition()->delete();
+
             $e->ElectionPositionEntity()->delete();
         });
     }

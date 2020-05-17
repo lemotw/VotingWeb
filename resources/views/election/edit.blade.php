@@ -43,43 +43,43 @@
             <div class="row">
                 <label>選舉名稱:</label> 
                 <input style="width:200px;" type="text" name="Name"
-                value="{{ isset($election)?$election->Name:NULL }}">
+                value="{{ isset($election)?$election->Name:NULL }}" autocomplete="off">
             </div>
 
             <div class="row">
                 <label>開始時間:</label>
                 <input style="width:200px;" name="StartTime" id="StartTime" 
-                value="{{ isset($election)?$election->StartTime:NULL }}"/>
+                value="{{ isset($election)?$election->StartTime:NULL }}" autocomplete="off"/>
             </div>
 
             <div class="row">
                 <label>結束時間:</label>
                 <input style="width:200px;" name="EndTime" id="EndTime"
-                value="{{ isset($election)?$election->EndTime:NULL }}"/>
+                value="{{ isset($election)?$election->EndTime:NULL }}" autocomplete="off"/>
             </div>
 
             <div class="row">
                 <label>登記開始:</label>
                 <input style="width:200px;" name="RegisterStart" id="RegisterStart"
-                value="{{ isset($election)?$election->RegisterStart:NULL }}"/>
+                value="{{ isset($election)?$election->RegisterStart:NULL }}" autocomplete="off"/>
             </div>
 
             <div class="row">
                 <label>登記結束:</label>
                 <input style="width:200px;" name="RegisterEnd" id="RegisterEnd"
-                value="{{ isset($election)?$election->RegisterEnd:NULL }}"/>
+                value="{{ isset($election)?$election->RegisterEnd:NULL }}" autocomplete="off"/>
             </div>
 
             <div class="row">
                 <label>投票開始:</label>
                 <input style="width:200px;" name="VoteStart" id="VoteStart"
-                value="{{ isset($election)?$election->VoteStart:NULL }}"/>
+                value="{{ isset($election)?$election->VoteStart:NULL }}" autocomplete="off"/>
             </div>
 
             <div class="row">
                 <label>投票結束:</label>
                 <input style="width:200px;" name="VoteEnd" id="VoteEnd"
-                value="{{ isset($election)?$election->VoteEnd:NULL }}"/>
+                value="{{ isset($election)?$election->VoteEnd:NULL }}" autocomplete="off"/>
             </div>
 
             <div class="row">

@@ -118,7 +118,7 @@
                     @endif
 
                     <div class="exp_box">
-                        <input type="text" name="exp[]" value="{{$exp}}">
+                        <input type="text" name="exp[]" value="{{$exp}}" autocomplete="off">
                         <a class="btn" onclick="delete_exp_input(this)">X</a>
                     </div>
                     @endforeach
